@@ -16,7 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.2"]
+sbert = ["sentence-transformers>=3.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-

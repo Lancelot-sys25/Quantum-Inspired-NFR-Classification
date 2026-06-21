@@ -27,8 +27,8 @@ class QuantumInspiredNFRClassifier(BaseEstimator, ClassifierMixin):
         x = self.vectorizer.transform(texts).toarray()
         states = self._normalize_states(x)
         amplitude = states @ self.label_basis_.T
-        probability = amplitude**2
-        adjusted = probability @ self.interference_
+        score = amplitude**2
+        adjusted = score @ self.interference_
         return self._minmax_rows(adjusted)
 
     def predict(self, texts: list[str]) -> np.ndarray:

@@ -1,0 +1,21 @@
+{
+  "source": "data\\raw\\PROMISE-relabeled-NICE.csv",
+  "model": "quantum_contrastive_projection",
+  "test_size": 0.3,
+  "seed": 42,
+  "top_k": 3,
+  "random_trials": 50,
+  "labels": [
+    "availability",
+    "fault_tolerance",
+    "legal",
+    "look_and_feel",
+    "maintainability",
+    "operability",
+    "performance",
+    "portability",
+    "scalability",
+    "security",
+    "usability"
+  ]
+}

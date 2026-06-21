@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import wilcoxon
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, hamming_loss, label_ranking_average_precision_score
@@ -12,6 +13,10 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
+from quantum_re_nfr.baselines import (
+    SentenceBertLogisticRegressionClassifier,
+    sentence_transformers_available,
+)
 from quantum_re_nfr.quantum_model import (
     HybridQuantumSVMNFRClassifier,
     QuantumInspiredContrastiveNFRClassifier,
@@ -27,8 +32,8 @@ from run_nice_multilabel_experiment import (
 )
 
 
-def model_suite(seed: int) -> dict:
-    return {
+def model_suite(seed: int, include_sbert: bool = True) -> dict:
+    models = {
         "tfidf_logistic_regression": OneVsRestClassifier(
             Pipeline(
                 [
@@ -49,12 +54,22 @@ def model_suite(seed: int) -> dict:
         "quantum_contrastive_projection": QuantumInspiredContrastiveNFRClassifier(random_state=seed),
         "hybrid_quantum_svm_fusion": HybridQuantumSVMNFRClassifier(random_state=seed, quantum_weight=0.15),
     }
+    if include_sbert and sentence_transformers_available():
+        models["sentence_bert_logistic_regression"] = SentenceBertLogisticRegressionClassifier(random_state=seed)
+    elif include_sbert:
+        print("Skipping Sentence-BERT baseline because sentence-transformers is not installed.")
+    return models
 
 
 def get_scores(model, x_valid, x_test):
     if isinstance(
         model,
-        (QuantumInspiredNFRClassifier, QuantumInspiredContrastiveNFRClassifier, HybridQuantumSVMNFRClassifier),
+        (
+            SentenceBertLogisticRegressionClassifier,
+            QuantumInspiredNFRClassifier,
+            QuantumInspiredContrastiveNFRClassifier,
+            HybridQuantumSVMNFRClassifier,
+        ),
     ):
         return model.predict_proba(list(x_valid)), model.predict_proba(list(x_test))
     if hasattr(model, "predict_proba"):
@@ -83,7 +98,42 @@ def summarize(results: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("macro_f1_mean", ascending=False)
 
 
-def write_report(report_path: Path, raw_path: Path, labels: list[str], fold_results: pd.DataFrame, summary: pd.DataFrame) -> None:
+def statistical_tests(fold_results: pd.DataFrame) -> pd.DataFrame:
+    pivot = fold_results.pivot(index="fold", columns="model", values="macro_f1")
+    reference = "hybrid_quantum_svm_fusion"
+    comparisons = ["tfidf_linear_svm", "tfidf_logistic_regression", "sentence_bert_logistic_regression"]
+    rows = []
+    if reference not in pivot:
+        return pd.DataFrame(rows)
+    for model in comparisons:
+        if model not in pivot:
+            continue
+        paired = pivot[[reference, model]].dropna()
+        diff = paired[reference] - paired[model]
+        try:
+            statistic, p_value = wilcoxon(paired[reference], paired[model])
+        except ValueError:
+            statistic, p_value = np.nan, np.nan
+        rows.append(
+            {
+                "comparison": f"{reference}_vs_{model}",
+                "folds": int(len(paired)),
+                "wilcoxon_statistic": statistic,
+                "p_value": p_value,
+                "mean_macro_f1_difference": float(diff.mean()),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def write_report(
+    report_path: Path,
+    raw_path: Path,
+    labels: list[str],
+    fold_results: pd.DataFrame,
+    summary: pd.DataFrame,
+    tests: pd.DataFrame,
+) -> None:
     lines = [
         "# NICE Multi-label Cross-validation Report",
         "",
@@ -102,6 +152,10 @@ def write_report(report_path: Path, raw_path: Path, labels: list[str], fold_resu
         "",
         markdown_table(fold_results, float_digits=4),
         "",
+        "## Paired Statistical Tests",
+        "",
+        markdown_table(tests, float_digits=4) if not tests.empty else "No paired tests were available.",
+        "",
         "## Reading the Results",
         "",
         "- Higher `micro_f1`, `macro_f1`, `weighted_f1`, and `label_ranking_average_precision` are better.",
@@ -118,6 +172,7 @@ def main() -> None:
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out-dir", default="reports")
+    parser.add_argument("--no-sbert", action="store_true", help="Skip the optional Sentence-BERT baseline.")
     args = parser.parse_args()
 
     raw_path = Path(args.data)
@@ -154,10 +209,15 @@ def main() -> None:
             }
         )
 
-        for model_name, model in model_suite(args.seed + fold).items():
+        for model_name, model in model_suite(args.seed + fold, include_sbert=not args.no_sbert).items():
             if isinstance(
                 model,
-                (QuantumInspiredNFRClassifier, QuantumInspiredContrastiveNFRClassifier, HybridQuantumSVMNFRClassifier),
+                (
+                    SentenceBertLogisticRegressionClassifier,
+                    QuantumInspiredNFRClassifier,
+                    QuantumInspiredContrastiveNFRClassifier,
+                    HybridQuantumSVMNFRClassifier,
+                ),
             ):
                 model.fit(list(x_train), y_train)
             else:
@@ -175,15 +235,18 @@ def main() -> None:
 
     fold_results = pd.DataFrame(results)
     summary = summarize(fold_results)
+    tests = statistical_tests(fold_results)
 
     fold_path = out_dir / "nice_cv_fold_results.csv"
     summary_path = out_dir / "nice_cv_summary.csv"
+    tests_path = out_dir / "nice_cv_statistical_tests.csv"
     report_path = out_dir / "nice_cv_report.md"
     metadata_path = out_dir / "nice_cv_metadata.json"
 
     fold_results.to_csv(fold_path, index=False)
     summary.to_csv(summary_path, index=False)
-    write_report(report_path, raw_path, labels, fold_results, summary)
+    tests.to_csv(tests_path, index=False)
+    write_report(report_path, raw_path, labels, fold_results, summary, tests)
     metadata_path.write_text(
         json.dumps(
             {"source": str(raw_path), "folds": args.folds, "seed": args.seed, "labels": labels},
@@ -194,6 +257,7 @@ def main() -> None:
 
     print(f"Wrote fold results: {fold_path}")
     print(f"Wrote summary: {summary_path}")
+    print(f"Wrote statistical tests: {tests_path}")
     print(f"Wrote report: {report_path}")
     print(summary.to_string(index=False))
 

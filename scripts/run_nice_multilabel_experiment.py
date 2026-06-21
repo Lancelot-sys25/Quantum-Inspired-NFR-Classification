@@ -20,6 +20,10 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 
+from quantum_re_nfr.baselines import (
+    SentenceBertLogisticRegressionClassifier,
+    sentence_transformers_available,
+)
 from quantum_re_nfr.explainability import top_feature_contributions
 from quantum_re_nfr.quantum_model import (
     HybridQuantumSVMNFRClassifier,
@@ -198,6 +202,7 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--out-dir", default="reports")
+    parser.add_argument("--no-sbert", action="store_true", help="Skip the optional Sentence-BERT baseline.")
     args = parser.parse_args()
 
     raw_path = Path(args.data)
@@ -246,6 +251,10 @@ def main() -> None:
             )
         ),
     }
+    if not args.no_sbert and sentence_transformers_available():
+        models["sentence_bert_logistic_regression"] = SentenceBertLogisticRegressionClassifier(random_state=args.seed)
+    elif not args.no_sbert:
+        print("Skipping Sentence-BERT baseline because sentence-transformers is not installed.")
 
     metrics = []
     per_label_reports = {}
@@ -267,10 +276,17 @@ def main() -> None:
     )
 
     for model_name, model in models.items():
-        model.fit(x_train, y_train)
+        if isinstance(model, SentenceBertLogisticRegressionClassifier):
+            model.fit(list(x_train), y_train)
+        else:
+            model.fit(x_train, y_train)
         if hasattr(model, "predict_proba"):
-            valid_score = model.predict_proba(x_valid)
-            y_score = model.predict_proba(x_test)
+            if isinstance(model, SentenceBertLogisticRegressionClassifier):
+                valid_score = model.predict_proba(list(x_valid))
+                y_score = model.predict_proba(list(x_test))
+            else:
+                valid_score = model.predict_proba(x_valid)
+                y_score = model.predict_proba(x_test)
         else:
             valid_decision = model.decision_function(x_valid)
             valid_score = 1 / (1 + np.exp(-valid_decision))

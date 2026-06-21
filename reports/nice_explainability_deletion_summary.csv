@@ -1,0 +1,2 @@
+evaluated_label_assignments,top_k,random_trials,mean_base_score,mean_top_deleted_score,mean_random_deleted_score,mean_top_score_drop,mean_random_score_drop,drop_ratio_top_vs_random
+158,3,50,0.6690128511469269,0.5598477804796886,0.6552485006221328,0.10916507066723828,0.013764350524794172,7.931000483502341

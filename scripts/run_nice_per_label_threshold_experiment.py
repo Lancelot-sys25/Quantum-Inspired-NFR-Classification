@@ -12,6 +12,10 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 
+from quantum_re_nfr.baselines import (
+    SentenceBertLogisticRegressionClassifier,
+    sentence_transformers_available,
+)
 from quantum_re_nfr.quantum_model import HybridQuantumSVMNFRClassifier
 from run_nice_multilabel_experiment import load_nice_dataset, markdown_table, stratify_key
 
@@ -43,7 +47,7 @@ def evaluate_per_label_thresholds(y_true: np.ndarray, y_score: np.ndarray, thres
 
 
 def get_scores(model, x_valid, x_test):
-    if isinstance(model, HybridQuantumSVMNFRClassifier):
+    if isinstance(model, (SentenceBertLogisticRegressionClassifier, HybridQuantumSVMNFRClassifier)):
         return model.predict_proba(list(x_valid)), model.predict_proba(list(x_test))
     if hasattr(model, "predict_proba"):
         return model.predict_proba(x_valid), model.predict_proba(x_test)
@@ -52,8 +56,8 @@ def get_scores(model, x_valid, x_test):
     return 1 / (1 + np.exp(-valid_decision)), 1 / (1 + np.exp(-test_decision))
 
 
-def model_suite(seed: int) -> dict:
-    return {
+def model_suite(seed: int, include_sbert: bool = True) -> dict:
+    models = {
         "tfidf_logistic_regression": OneVsRestClassifier(
             Pipeline(
                 [
@@ -72,6 +76,11 @@ def model_suite(seed: int) -> dict:
         ),
         "hybrid_quantum_svm_fusion": HybridQuantumSVMNFRClassifier(random_state=seed, quantum_weight=0.15),
     }
+    if include_sbert and sentence_transformers_available():
+        models["sentence_bert_logistic_regression"] = SentenceBertLogisticRegressionClassifier(random_state=seed)
+    elif include_sbert:
+        print("Skipping Sentence-BERT baseline because sentence-transformers is not installed.")
+    return models
 
 
 def summarize(results: pd.DataFrame) -> pd.DataFrame:
@@ -129,6 +138,7 @@ def main() -> None:
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out-dir", default="reports")
+    parser.add_argument("--no-sbert", action="store_true", help="Skip the optional Sentence-BERT baseline.")
     args = parser.parse_args()
 
     raw_path = Path(args.data)
@@ -152,8 +162,8 @@ def main() -> None:
         x_train, x_valid, x_test = x[train_idx], x[valid_idx], x[test_idx]
         y_train, y_valid, y_test = y[train_idx], y[valid_idx], y[test_idx]
 
-        for model_name, model in model_suite(args.seed + fold).items():
-            if isinstance(model, HybridQuantumSVMNFRClassifier):
+        for model_name, model in model_suite(args.seed + fold, include_sbert=not args.no_sbert).items():
+            if isinstance(model, (SentenceBertLogisticRegressionClassifier, HybridQuantumSVMNFRClassifier)):
                 model.fit(list(x_train), y_train)
             else:
                 model.fit(x_train, y_train)
@@ -195,4 +205,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
