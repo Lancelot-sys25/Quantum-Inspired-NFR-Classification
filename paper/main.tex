@@ -1,4 +1,4 @@
-\documentclass[runningheads]{llncs}
+\documentclass[runningheads,orivec]{llncs}
 
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -143,7 +143,7 @@ Each requirement text is first converted into a TF-IDF vector:
 where $d$ is the vocabulary size. The vector is normalized to form a semantic
 state:
 \begin{equation}
-    \lvert r_i \rangle = \frac{\mathbf{x}_i}{\lVert \mathbf{x}_i \rVert_2}.
+    \lvert r_i \rangle = \frac{\mathbf{x}_i}{\left\|\mathbf{x}_i\right\|_2}.
 \end{equation}
 This normalization allows the requirement to be interpreted as a direction in
 semantic space.
@@ -170,7 +170,7 @@ the contrastive direction is computed as:
 \begin{equation}
     \lvert c_{\Delta} \rangle =
     \frac{\mu_c^{+} - \mu_c^{-}}
-    {\lVert \mu_c^{+} - \mu_c^{-} \rVert_2},
+    {\left\|\mu_c^{+} - \mu_c^{-}\right\|_2},
 \end{equation}
 where $\mu_c^{+}$ is the centroid of requirements that contain label $c$, and
 $\mu_c^{-}$ is the centroid of requirements that do not contain label $c$.
