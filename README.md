@@ -142,6 +142,8 @@ NCKH-SWR/
     README.md                    # Paper build notes
   reports/                       # Experiment outputs and metric summaries
   scripts/
+    run_all_experiments.py
+    run_nice_ablation_experiment.py
     run_nice_multilabel_experiment.py
     run_nice_cv_experiment.py
     run_nice_per_label_threshold_experiment.py
@@ -303,7 +305,45 @@ reports/nice_per_label_threshold_fold_results.csv
 reports/nice_per_label_threshold_metadata.json
 ```
 
-### 4. PROMISE-expanded Auxiliary Experiment
+### 4. NICE Ablation Study
+
+```bash
+python scripts/run_nice_ablation_experiment.py
+```
+
+Outputs:
+
+```text
+reports/nice_ablation_report.md
+reports/nice_ablation_summary.csv
+reports/nice_ablation_fold_results.csv
+reports/nice_ablation_metadata.json
+```
+
+The ablation study tests whether the proposed components are aligned with the research claim:
+
+- original positive-centroid projection;
+- contrastive projection without label interference;
+- contrastive projection with label interference;
+- SVM-only discriminative baseline;
+- hybrid quantum-SVM fusion with different quantum weights.
+
+### 5. Explainability Deletion Test
+
+```bash
+python scripts/run_explainability_deletion_test.py
+```
+
+Outputs:
+
+```text
+reports/nice_explainability_deletion_report.md
+reports/nice_explainability_deletion_summary.csv
+reports/nice_explainability_deletion_detail.csv
+reports/nice_explainability_deletion_metadata.json
+```
+
+### 6. PROMISE-expanded Auxiliary Experiment
 
 ```bash
 python scripts/run_promise_experiment.py
@@ -316,6 +356,18 @@ data/processed/promise_exp_nfr_11class.csv
 reports/promise_exp_report.md
 reports/promise_exp_metrics.csv
 reports/promise_exp_metadata.json
+```
+
+### 7. Run the Main Reproducibility Pipeline
+
+```bash
+python scripts/run_all_experiments.py
+```
+
+For a faster smoke test without optional Sentence-BERT:
+
+```bash
+python scripts/run_all_experiments.py --folds 2 --no-sbert --skip-promise --random-trials 5
 ```
 
 ## Experimental Results
@@ -355,6 +407,20 @@ Under standard 5-fold cross-validation with a global threshold, TF-IDF Linear SV
 | TF-IDF Logistic Regression | 0.6219 | 0.5629 | 0.0967 | 0.7990 |
 
 With per-label threshold calibration, the hybrid quantum-SVM model obtains the best Macro-F1 and LRAP. This setting is important because the NICE labels are imbalanced and rare labels may require different decision thresholds from frequent labels.
+
+### NICE Ablation Study
+
+| Variant | Micro-F1 | Macro-F1 | Hamming Loss | LRAP |
+| --- | ---: | ---: | ---: | ---: |
+| Hybrid Quantum-SVM, alpha = 0.15 | 0.6739 | 0.6000 | 0.0742 | 0.8075 |
+| SVM-only sublinear TF-IDF | 0.6713 | 0.5945 | 0.0843 | 0.8081 |
+| Hybrid Quantum-SVM, alpha = 0.50 | 0.6501 | 0.5865 | 0.0818 | 0.7933 |
+| Hybrid Quantum-SVM, alpha = 0.30 | 0.6442 | 0.5761 | 0.0759 | 0.8029 |
+| Contrastive projection with interference | 0.6145 | 0.5602 | 0.0873 | 0.7775 |
+| Positive projection with interference | 0.5931 | 0.5490 | 0.1096 | 0.7830 |
+| Contrastive projection without interference | 0.5995 | 0.5445 | 0.0878 | 0.7783 |
+
+The ablation supports the current research claim: contrastive projection is more useful than the original positive-centroid projection, and the quantum-inspired signal is most effective as a light-weight calibrated component in the hybrid model.
 
 ### PROMISE-expanded Auxiliary Result
 
@@ -437,6 +503,22 @@ To strengthen the project for submission to an international software engineerin
   - deletion tests;
   - comparison with TF-IDF/SVM feature weights.
 - Evaluate cross-dataset generalization if compatible label mappings can be constructed.
+
+## Research Readiness Checklist
+
+- [x] TF-IDF Logistic Regression and Linear SVM baselines
+- [x] Sentence-BERT embedding baseline
+- [x] Quantum-inspired positive projection
+- [x] Contrastive quantum-inspired projection
+- [x] Hybrid quantum-SVM fusion
+- [x] Cross-validation and per-label threshold calibration
+- [x] Wilcoxon signed-rank tests over fold-level Macro-F1
+- [x] Deletion-based explanation faithfulness test
+- [x] Ablation study for projection, interference, and fusion weight
+- [x] Reproducibility runner for the main experiment pipeline
+- [ ] Fine-tuned BERT/RoBERTa/NoRBERT baselines
+- [ ] Human evaluation of explanation usefulness
+- [ ] Cross-dataset validation
 
 ## Development Notes
 

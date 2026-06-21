@@ -1,0 +1,19 @@
+{
+  "source": "data\\raw\\PROMISE-relabeled-NICE.csv",
+  "folds": 5,
+  "seed": 42,
+  "labels": [
+    "availability",
+    "fault_tolerance",
+    "legal",
+    "look_and_feel",
+    "maintainability",
+    "operability",
+    "performance",
+    "portability",
+    "scalability",
+    "security",
+    "usability"
+  ],
+  "threshold_selection": "validation macro_f1 grid search from 0.05 to 0.95"
+}

@@ -82,7 +82,8 @@ The contributions of this paper are:
     \item a reproducible implementation for multi-label NFR classification experiments;
     \item quantum-inspired projection, contrastive projection, and hybrid quantum--SVM variants;
     \item token-level semantic amplitude explanations and a deletion-based faithfulness test;
-    \item empirical comparison against TF-IDF Logistic Regression, TF-IDF Linear SVM, Sentence-BERT, and a label-frequency baseline on the NICE dataset.
+    \item empirical comparison against TF-IDF Logistic Regression, TF-IDF Linear SVM, Sentence-BERT, and a label-frequency baseline on the NICE dataset;
+    \item an ablation study of projection type, label interference, and hybrid fusion weight.
 \end{itemize}
 
 \section{Related Work}
@@ -347,6 +348,44 @@ Macro-F1. The hybrid quantum--SVM model is the strongest non-embedding model in
 Macro-F1, which suggests that label-specific thresholds help the hybrid model
 handle imbalanced NFR labels.
 
+\subsection{Ablation Study}
+Table \ref{tab:nice-ablation} reports a 5-fold ablation study of the main
+quantum-inspired components. The ablation compares the original positive
+projection, contrastive projection with and without interference, an SVM-only
+component using the same sublinear TF-IDF representation as the hybrid model,
+and hybrid fusion with different quantum weights.
+
+\begin{table}[htbp]
+\centering
+\caption{Ablation study on the NICE multi-label dataset. The best hybrid
+configuration uses a small quantum weight ($\alpha=0.15$), indicating that the
+projection score is most useful as a calibrated auxiliary signal rather than as
+the dominant score.}
+\label{tab:nice-ablation}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+Variant & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
+\midrule
+Hybrid $\alpha=0.15$ & 0.6739 $\pm$ 0.0432 & 0.6000 $\pm$ 0.0318 & 0.0742 $\pm$ 0.0099 & 0.8075 $\pm$ 0.0259 \\
+SVM-only sublinear TF-IDF & 0.6713 $\pm$ 0.0553 & 0.5945 $\pm$ 0.0409 & 0.0843 $\pm$ 0.0263 & 0.8081 $\pm$ 0.0291 \\
+Hybrid $\alpha=0.50$ & 0.6501 $\pm$ 0.0544 & 0.5865 $\pm$ 0.0443 & 0.0818 $\pm$ 0.0119 & 0.7933 $\pm$ 0.0374 \\
+Hybrid $\alpha=0.30$ & 0.6442 $\pm$ 0.0597 & 0.5761 $\pm$ 0.0470 & 0.0759 $\pm$ 0.0085 & 0.8029 $\pm$ 0.0294 \\
+Contrastive projection with interference & 0.6145 $\pm$ 0.0493 & 0.5602 $\pm$ 0.0416 & 0.0873 $\pm$ 0.0116 & 0.7775 $\pm$ 0.0320 \\
+Positive projection with interference & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
+Contrastive projection without interference & 0.5995 $\pm$ 0.0353 & 0.5445 $\pm$ 0.0363 & 0.0878 $\pm$ 0.0089 & 0.7783 $\pm$ 0.0328 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+The ablation supports three observations. First, contrastive projection with
+interference improves Macro-F1 over the original positive projection. Second,
+the hybrid model improves over pure projection variants, showing the value of
+discriminative calibration. Third, increasing the quantum weight beyond
+$\alpha=0.15$ reduces Macro-F1, suggesting that the current projection signal
+should complement rather than replace the SVM score.
+
 \subsection{Explainability Evaluation}
 The deletion test evaluates whether high-contribution explanation terms are
 actually influential. Across 158 true label assignments in the test split,
@@ -376,7 +415,9 @@ The contrastive quantum variant performs better than the original projection
 model in 5-fold cross-validation, showing that discriminative label directions
 are more effective than positive-only centroids. The hybrid model further
 improves stability by combining the interpretable projection signal with SVM
-scores. The strongest supported claim is therefore not that a pure
+scores. The ablation study further shows that a small quantum fusion weight
+works better than larger quantum weights in the current TF-IDF setting. The
+strongest supported claim is therefore not that a pure
 quantum-inspired model outperforms all classical baselines, but that a
 calibrated quantum-inspired representation can be competitive while providing
 token-level explanations that pass a deletion-based faithfulness check.
@@ -402,6 +443,10 @@ can change the relative ranking of models.
 the model's own scoring function, but it does not measure human usefulness or
 agreement with expert rationales.
 
+\textbf{Ablation scope.} The ablation study examines projection type,
+interference, and fusion weight, but it does not yet test contextual embeddings
+inside the quantum-inspired projection component.
+
 \section{Conclusion}
 This paper presented explainable quantum-inspired models for multi-label NFR
 classification. Requirements are represented as semantic states, NFR labels are
@@ -410,7 +455,9 @@ semantic amplitude contributions. Experiments on the NICE multi-label dataset
 show that the hybrid quantum--SVM model is competitive with TF-IDF baselines,
 although Sentence-BERT is the strongest Macro-F1 and LRAP baseline. The
 deletion-based explainability evaluation shows that top contribution terms are
-substantially more influential than random terms.
+substantially more influential than random terms. The ablation study indicates
+that contrastive projection and light-weight hybrid fusion are the most useful
+quantum-inspired components in the current implementation.
 
 Future work should integrate contextual embeddings into the quantum-inspired
 representation, compare with fine-tuned BERT/RoBERTa and NoRBERT baselines,
@@ -423,7 +470,9 @@ The implementation contains scripts for reproducing the experiments:
     \item \texttt{scripts/run\_nice\_multilabel\_experiment.py}
     \item \texttt{scripts/run\_nice\_cv\_experiment.py}
     \item \texttt{scripts/run\_nice\_per\_label\_threshold\_experiment.py}
+    \item \texttt{scripts/run\_nice\_ablation\_experiment.py}
     \item \texttt{scripts/run\_explainability\_deletion\_test.py}
+    \item \texttt{scripts/run\_all\_experiments.py}
     \item \texttt{scripts/run\_promise\_experiment.py}
 \end{itemize}
 For anonymous review, the artifact should be submitted as an anonymized
