@@ -1,4 +1,4 @@
-\documentclass[runningheads,orivec]{llncs}
+\documentclass[runningheads]{llncs}
 
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
@@ -9,6 +9,7 @@
 \usepackage{url}
 \usepackage{color}
 \usepackage{hyperref}
+\usepackage{microtype}
 \renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \title{Explainable Quantum-Inspired Multi-label Classification of Non-Functional Requirements}
@@ -249,7 +250,7 @@ The quantum-inspired models are:
 \end{itemize}
 
 \subsection{Metrics and Threshold Selection}
-The main metrics are Micro-F1, Macro-F1, Weighted-F1, Hamming loss, and Label
+The main reported metrics are Micro-F1, Macro-F1, Hamming loss, and Label
 Ranking Average Precision (LRAP). Macro-F1 is emphasized because the NFR labels
 are imbalanced. Two threshold protocols are evaluated. First, a single global
 threshold is selected on an internal validation split by maximizing Macro-F1
@@ -317,9 +318,9 @@ competitive with TF-IDF baselines and improves over both pure quantum-inspired
 variants. A Wilcoxon signed-rank test over fold-level Macro-F1 finds no
 significant difference between the hybrid model and TF-IDF Linear SVM
 ($p=0.625$), TF-IDF Logistic Regression ($p=1.000$), or Sentence-BERT
-($p=0.125$). Given the small number of folds, these tests should be interpreted
-as descriptive evidence rather than a strong statistical conclusion
-\cite{demsar2006statistical}.
+($p=0.125$). Given the small number of folds and the dependence induced by
+cross-validation resampling, these values are reported as descriptive evidence
+rather than as a strong statistical conclusion.
 
 \subsection{5-Fold Cross-validation with Per-label Thresholds}
 Table \ref{tab:nice-per-label} reports the 5-fold results when each label
@@ -388,13 +389,34 @@ should complement rather than replace the SVM score.
 
 \subsection{Explainability Evaluation}
 The deletion test evaluates whether high-contribution explanation terms are
-actually influential. Across 158 true label assignments in the test split,
-deleting the top-3 contribution terms reduced the mean projection score from
-0.6690 to 0.5598, a mean drop of 0.1092. Deleting three random nonzero terms
-reduced the mean score to 0.6552, a mean drop of 0.0138. Thus, targeted deletion
-produced a score drop about 7.93 times larger than random deletion. This
-supports RQ2 by showing that the highlighted terms are not merely descriptive;
-they are also influential under the model's scoring function.
+actually influential. Across 158 true label assignments in the held-out test
+split, deleting the top-3 intrinsic projection terms reduced the mean projection
+score from 0.6577 to 0.5413, a mean drop of 0.1165. Deleting three random
+nonzero terms reduced the mean score to 0.6435, a mean drop of 0.0143. Thus,
+targeted deletion produced a score drop about 8.17 times larger than random
+deletion. For comparison, deleting the top-3 TF-IDF Linear SVM coefficient
+features produced a mean score drop of 0.0867, about 4.09 times its random
+deletion baseline. This supports RQ2 by showing that the highlighted projection
+terms are not merely descriptive; they are also influential under the model's
+scoring function and at least comparable to a standard linear-model feature
+attribution baseline.
+
+Table \ref{tab:qualitative} gives a qualitative example from the same deletion
+test. The highest-contribution terms for the Security label correspond to access
+control concepts that are also plausible human rationales.
+
+\begin{table}[htbp]
+\centering
+\caption{Example requirement with top token-level contributions for the true NFR label, illustrating the intrinsic explanation produced by the projection model.}
+\label{tab:qualitative}
+\begin{tabular}{p{0.52\textwidth}p{0.16\textwidth}p{0.22\textwidth}}
+\toprule
+Requirement excerpt & Label & Top terms \\
+\midrule
+``The product shall ensure that it can only be accessed by authorized users'' & Security & authorized, only, access \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Auxiliary PROMISE-expanded Result}
 The auxiliary single-label PROMISE-expanded experiment shows that the
@@ -421,6 +443,27 @@ strongest supported claim is therefore not that a pure
 quantum-inspired model outperforms all classical baselines, but that a
 calibrated quantum-inspired representation can be competitive while providing
 token-level explanations that pass a deletion-based faithfulness check.
+
+To reduce reliance on fold-level significance testing, we also ran a paired
+bootstrap over the held-out NICE test requirements. The hybrid model's Macro-F1
+advantage over TF-IDF Linear SVM was 0.0814 with a 95\% bootstrap interval of
+[-0.0039, 0.1541], and its advantage over TF-IDF Logistic Regression was 0.0753
+with interval [-0.0147, 0.1533]. These intervals overlap zero, so they support
+the same conservative conclusion as the cross-validation results: the hybrid
+model is competitive with TF-IDF baselines, but the evidence is not strong
+enough to claim clear accuracy superiority.
+
+Although Sentence-BERT obtains the highest Macro-F1 and LRAP, the
+quantum-inspired hybrid model occupies a different point in the
+accuracy--interpretability--cost trade-off. Sentence-BERT relies on a pretrained
+transformer encoder and produces dense embeddings whose individual dimensions
+are not directly interpretable, so explanations require post-hoc methods such
+as LIME or SHAP \cite{ribeiro2016lime,lundberg2017shap}. In contrast, the
+projection model yields token-level contributions that are intrinsic to the
+scoring function and pass a deletion-based faithfulness check, while remaining
+competitive with TF-IDF baselines and requiring no pretrained model. The method
+is therefore most attractive when interpretability and a small dependency
+footprint matter more than maximum Macro-F1.
 
 \section{Threats to Validity}
 \textbf{Dataset size.} NICE contains only a few hundred NFR-labeled
@@ -460,9 +503,10 @@ that contrastive projection and light-weight hybrid fusion are the most useful
 quantum-inspired components in the current implementation.
 
 Future work should integrate contextual embeddings into the quantum-inspired
-representation, compare with fine-tuned BERT/RoBERTa and NoRBERT baselines,
-evaluate ML-kNN as a classical multi-label baseline, and collect human rationale
-judgments for explanation quality.
+representation, compare with fine-tuned BERT/RoBERTa \cite{liu2019roberta} and
+NoRBERT baselines, evaluate ML-kNN \cite{zhang2007mlknn} as a classical
+multi-label baseline, and collect human rationale judgments for explanation
+quality.
 
 \section*{Reproducibility}
 The implementation contains scripts for reproducing the experiments:
@@ -472,6 +516,7 @@ The implementation contains scripts for reproducing the experiments:
     \item \texttt{scripts/run\_nice\_per\_label\_threshold\_experiment.py}
     \item \texttt{scripts/run\_nice\_ablation\_experiment.py}
     \item \texttt{scripts/run\_explainability\_deletion\_test.py}
+    \item \texttt{scripts/run\_nice\_robustness\_experiment.py}
     \item \texttt{scripts/run\_all\_experiments.py}
     \item \texttt{scripts/run\_promise\_experiment.py}
 \end{itemize}

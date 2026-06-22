@@ -1,0 +1,4 @@
+comparison,iterations,observed_macro_f1_difference,ci95_low,ci95_high,bootstrap_p_two_sided
+hybrid_quantum_svm_fusion_vs_tfidf_linear_svm,2000,0.08140057903596487,-0.003886828958644592,0.15414759904248507,0.07
+hybrid_quantum_svm_fusion_vs_tfidf_logistic_regression,2000,0.07528602504312631,-0.014718093393573753,0.15333107026430592,0.14
+hybrid_quantum_svm_fusion_vs_quantum_contrastive_projection,2000,0.06524209364766631,0.00019406591000949866,0.11634621789279409,0.048
