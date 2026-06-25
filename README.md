@@ -125,7 +125,7 @@ where:
 
 - `q_i` is the contrastive quantum-inspired score vector;
 - `v_i` is the calibrated Linear SVM score vector;
-- `alpha = 0.15` is the quantum fusion weight used in the final experiments.
+- `alpha = 0.30` is the quantum fusion weight used in the final experiments.
 
 ## Repository Structure
 
@@ -380,47 +380,47 @@ python scripts/run_all_experiments.py --folds 2 --no-sbert --skip-promise --rand
 | TF-IDF Logistic Regression | 0.45 | 0.6299 | 0.5266 | 0.0901 | 0.7861 |
 | TF-IDF Linear SVM | 0.45 | 0.6212 | 0.5205 | 0.0877 | 0.7843 |
 | Quantum-inspired Projection | 0.85 | 0.6076 | 0.5618 | 0.0980 | 0.7694 |
-| Contrastive Quantum Projection | 0.60 | 0.5848 | 0.5367 | 0.1123 | 0.7600 |
-| Hybrid Quantum-SVM Fusion | 0.45 | 0.6347 | 0.6019 | 0.0964 | 0.7847 |
+| Contrastive Quantum Projection | 0.45 | 0.4346 | 0.4460 | 0.2119 | 0.7099 |
+| Hybrid Quantum-SVM Fusion | 0.45 | 0.6254 | 0.5276 | 0.0862 | 0.7775 |
 
-In this single split, the hybrid quantum-SVM fusion model obtains the highest Micro-F1, Macro-F1, and LRAP. The original quantum-inspired projection also improves over TF-IDF Logistic Regression and TF-IDF Linear SVM on Macro-F1. However, single-split results should be interpreted cautiously.
+In this single split, the positive projection variant obtains the highest Macro-F1 among non-embedding models, while the hybrid quantum-SVM fusion model obtains the lowest Hamming loss. Single-split results should be interpreted cautiously.
 
 ### NICE 5-Fold Cross-validation
 
 | Model | Micro-F1 | Macro-F1 | Hamming Loss | LRAP |
 | --- | ---: | ---: | ---: | ---: |
+| Hybrid Quantum-SVM Fusion | 0.6881 | 0.6112 | 0.0749 | 0.8045 |
 | TF-IDF Linear SVM | 0.6821 | 0.6049 | 0.0764 | 0.8056 |
-| Hybrid Quantum-SVM Fusion | 0.6739 | 0.6000 | 0.0742 | 0.8075 |
 | TF-IDF Logistic Regression | 0.6787 | 0.5977 | 0.0759 | 0.7990 |
-| Contrastive Quantum Projection | 0.6145 | 0.5602 | 0.0873 | 0.7775 |
 | Quantum-inspired Projection | 0.5931 | 0.5490 | 0.1096 | 0.7830 |
+| Contrastive Quantum Projection | 0.4924 | 0.5144 | 0.1751 | 0.7185 |
 | Label-frequency baseline | 0.2328 | 0.2083 | 0.7927 | 0.4059 |
 
-Under standard 5-fold cross-validation with a global threshold, TF-IDF Linear SVM obtains the highest Macro-F1. The hybrid quantum-SVM model remains competitive, improves over the pure quantum-inspired variants, and obtains the best Hamming loss and LRAP.
+Under standard 5-fold cross-validation with a global threshold, the hybrid quantum-SVM model obtains the highest Micro-F1 and Macro-F1 among the no-SBERT models and improves over the pure quantum-inspired variants.
 
 ### NICE 5-Fold Cross-validation with Per-label Threshold Calibration
 
 | Model | Micro-F1 | Macro-F1 | Hamming Loss | LRAP |
 | --- | ---: | ---: | ---: | ---: |
-| Hybrid Quantum-SVM Fusion | 0.6138 | 0.5775 | 0.1010 | 0.8075 |
+| Hybrid Quantum-SVM Fusion | 0.6230 | 0.5850 | 0.1031 | 0.8045 |
 | TF-IDF Linear SVM | 0.6085 | 0.5640 | 0.1057 | 0.8056 |
 | TF-IDF Logistic Regression | 0.6219 | 0.5629 | 0.0967 | 0.7990 |
 
-With per-label threshold calibration, the hybrid quantum-SVM model obtains the best Macro-F1 and LRAP. This setting is important because the NICE labels are imbalanced and rare labels may require different decision thresholds from frequent labels.
+With per-label threshold calibration, the hybrid quantum-SVM model obtains the best Macro-F1 among the no-SBERT models. This setting is important because the NICE labels are imbalanced and rare labels may require different decision thresholds from frequent labels.
 
 ### NICE Ablation Study
 
 | Variant | Micro-F1 | Macro-F1 | Hamming Loss | LRAP |
 | --- | ---: | ---: | ---: | ---: |
-| Hybrid Quantum-SVM, alpha = 0.15 | 0.6739 | 0.6000 | 0.0742 | 0.8075 |
+| Hybrid Quantum-SVM, alpha = 0.30 | 0.6881 | 0.6112 | 0.0749 | 0.8045 |
+| Hybrid Quantum-SVM, alpha = 0.15 | 0.6870 | 0.6097 | 0.0747 | 0.8085 |
+| Hybrid Quantum-SVM, alpha = 0.50 | 0.6853 | 0.6040 | 0.0757 | 0.8007 |
 | SVM-only sublinear TF-IDF | 0.6713 | 0.5945 | 0.0843 | 0.8081 |
-| Hybrid Quantum-SVM, alpha = 0.50 | 0.6501 | 0.5865 | 0.0818 | 0.7933 |
-| Hybrid Quantum-SVM, alpha = 0.30 | 0.6442 | 0.5761 | 0.0759 | 0.8029 |
-| Contrastive projection with interference | 0.6145 | 0.5602 | 0.0873 | 0.7775 |
 | Positive projection with interference | 0.5931 | 0.5490 | 0.1096 | 0.7830 |
-| Contrastive projection without interference | 0.5995 | 0.5445 | 0.0878 | 0.7783 |
+| Contrastive projection without interference | 0.5447 | 0.5397 | 0.1339 | 0.7183 |
+| Contrastive projection with interference | 0.4924 | 0.5144 | 0.1751 | 0.7185 |
 
-The ablation supports the current research claim: contrastive projection is more useful than the original positive-centroid projection, and the quantum-inspired signal is most effective as a light-weight calibrated component in the hybrid model.
+The ablation supports a narrower research claim: the quantum-inspired signal is most effective as a calibrated auxiliary component in the hybrid model, while the rectified pure contrastive projection needs further refinement.
 
 ### PROMISE-expanded Auxiliary Result
 

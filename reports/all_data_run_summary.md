@@ -39,25 +39,26 @@ Single split results:
 | tfidf_logistic_regression | 0.45 | 0.6299 | 0.5266 | 0.0901 | 0.7861 |
 | tfidf_linear_svm | 0.45 | 0.6212 | 0.5205 | 0.0877 | 0.7843 |
 | quantum_inspired_projection | 0.85 | 0.6076 | 0.5618 | 0.0980 | 0.7694 |
-| quantum_contrastive_projection | 0.60 | 0.5848 | 0.5367 | 0.1123 | 0.7600 |
+| quantum_contrastive_projection | 0.45 | 0.4346 | 0.4460 | 0.2119 | 0.7099 |
+| hybrid_quantum_svm_fusion | 0.45 | 0.6254 | 0.5276 | 0.0862 | 0.7775 |
 
 5-fold cross-validation mean results:
 
 | model | micro_f1_mean | macro_f1_mean | hamming_loss_mean | LRAP_mean |
 | --- | ---: | ---: | ---: | ---: |
+| hybrid_quantum_svm_fusion | 0.6881 | 0.6112 | 0.0749 | 0.8045 |
 | tfidf_linear_svm | 0.6821 | 0.6049 | 0.0764 | 0.8056 |
-| hybrid_quantum_svm_fusion | 0.6739 | 0.6000 | 0.0742 | 0.8075 |
 | tfidf_logistic_regression | 0.6787 | 0.5977 | 0.0759 | 0.7990 |
-| quantum_contrastive_projection | 0.6145 | 0.5602 | 0.0873 | 0.7775 |
 | quantum_inspired_projection | 0.5931 | 0.5490 | 0.1096 | 0.7830 |
+| quantum_contrastive_projection | 0.4924 | 0.5144 | 0.1751 | 0.7185 |
 | label_frequency_baseline | 0.2328 | 0.2083 | 0.7927 | 0.4059 |
 
 Interpretation:
 
 ```text
 NICE is the most relevant dataset for the research topic because it is multi-label.
-The original quantum-inspired model wins Macro-F1 in the single split, but SVM wins in standard 5-fold cross-validation.
-The hybrid quantum + SVM fusion model substantially improves over the original quantum model. In standard 5-fold CV, it is close to SVM in Macro-F1, beats Logistic Regression in Macro-F1, and has the best Hamming loss and LRAP.
+The positive projection model is strongest among pure quantum-inspired variants on the single split, while the hybrid quantum + SVM fusion model is strongest among the no-SBERT models in standard 5-fold cross-validation.
+The rectified contrastive projection avoids rewarding negative evidence, but the pure contrastive variant needs further refinement.
 ```
 
 ### NICE 5-fold with per-label threshold calibration
@@ -70,14 +71,14 @@ reports/nice_per_label_threshold_report.md
 
 | model | micro_f1_mean | macro_f1_mean | hamming_loss_mean | LRAP_mean |
 | --- | ---: | ---: | ---: | ---: |
-| hybrid_quantum_svm_fusion | 0.6138 | 0.5775 | 0.1010 | 0.8075 |
+| hybrid_quantum_svm_fusion | 0.6230 | 0.5850 | 0.1031 | 0.8045 |
 | tfidf_linear_svm | 0.6085 | 0.5640 | 0.1057 | 0.8056 |
 | tfidf_logistic_regression | 0.6219 | 0.5629 | 0.0967 | 0.7990 |
 
 Interpretation:
 
 ```text
-When every model uses per-label threshold calibration, the hybrid quantum model achieves the best Macro-F1 and LRAP among the compared models.
+When every model uses per-label threshold calibration, the hybrid quantum model achieves the best Macro-F1 among the no-SBERT models.
 This setting is relevant because multi-label NFR classes are imbalanced and each label can require a different decision threshold.
 ```
 

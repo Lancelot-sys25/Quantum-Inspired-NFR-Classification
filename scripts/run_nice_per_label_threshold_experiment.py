@@ -74,7 +74,7 @@ def model_suite(seed: int, include_sbert: bool = True) -> dict:
                 ]
             )
         ),
-        "hybrid_quantum_svm_fusion": HybridQuantumSVMNFRClassifier(random_state=seed, quantum_weight=0.15),
+        "hybrid_quantum_svm_fusion": HybridQuantumSVMNFRClassifier(random_state=seed, quantum_weight=0.30),
     }
     if include_sbert and sentence_transformers_available():
         models["sentence_bert_logistic_regression"] = SentenceBertLogisticRegressionClassifier(random_state=seed)

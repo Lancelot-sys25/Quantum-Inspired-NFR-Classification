@@ -17,7 +17,8 @@ def normalized_states(model: QuantumInspiredContrastiveNFRClassifier, texts: np.
 
 def label_score(model: QuantumInspiredContrastiveNFRClassifier, state: np.ndarray, label_index: int) -> float:
     amplitude = float(state @ model.label_basis_[label_index])
-    raw = model.score_scale * amplitude + float(model.label_bias_[label_index])
+    rectified_projection = max(0.0, amplitude) ** 2
+    raw = model.score_scale * rectified_projection + float(model.label_bias_[label_index])
     return float(model._sigmoid(raw))
 
 

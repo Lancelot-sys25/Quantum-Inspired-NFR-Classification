@@ -103,7 +103,8 @@ class QuantumInspiredContrastiveNFRClassifier(BaseEstimator, ClassifierMixin):
         x = self.vectorizer.transform(texts).toarray()
         states = self._normalize_states(x)
         amplitude = states @ self.label_basis_.T
-        score = self._sigmoid(self.score_scale * amplitude + self.label_bias_)
+        rectified_projection = np.maximum(0.0, amplitude) ** 2
+        score = self._sigmoid(self.score_scale * rectified_projection + self.label_bias_)
         if self.interference_weight:
             interfered = score @ self.interference_
             score = (1 - self.interference_weight) * score + self.interference_weight * interfered

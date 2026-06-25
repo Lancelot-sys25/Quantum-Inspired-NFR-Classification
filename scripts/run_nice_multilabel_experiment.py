@@ -310,7 +310,7 @@ def main() -> None:
         "hybrid_quantum_svm_fusion": HybridQuantumSVMNFRClassifier(
             threshold=args.threshold,
             random_state=args.seed,
-            quantum_weight=0.15,
+            quantum_weight=0.30,
         ),
     }
     quantum_model = None

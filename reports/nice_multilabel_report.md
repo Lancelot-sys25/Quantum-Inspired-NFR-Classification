@@ -33,10 +33,9 @@
 | label_frequency_baseline | 0.0500 | 0.2221 | 0.2166 | 0.2657 | 0.8751 | 0.4183 |
 | tfidf_logistic_regression | 0.4500 | 0.6299 | 0.5266 | 0.6071 | 0.0901 | 0.7861 |
 | tfidf_linear_svm | 0.4500 | 0.6212 | 0.5205 | 0.5992 | 0.0877 | 0.7843 |
-| sentence_bert_logistic_regression | 0.5000 | 0.6667 | 0.6049 | 0.6673 | 0.0901 | 0.8286 |
 | quantum_inspired_projection | 0.8500 | 0.6076 | 0.5618 | 0.6049 | 0.0980 | 0.7694 |
-| quantum_contrastive_projection | 0.6000 | 0.5848 | 0.5367 | 0.5909 | 0.1123 | 0.7600 |
-| hybrid_quantum_svm_fusion | 0.4500 | 0.6347 | 0.6019 | 0.6275 | 0.0964 | 0.7847 |
+| quantum_contrastive_projection | 0.4500 | 0.4346 | 0.4460 | 0.4677 | 0.2119 | 0.7099 |
+| hybrid_quantum_svm_fusion | 0.4500 | 0.6254 | 0.5276 | 0.6021 | 0.0862 | 0.7775 |
 
 ## Interpretation
 
@@ -50,21 +49,21 @@
 
 - Text: The Disputes System must be accessible by both internal and external users.
 - True labels: `availability, security`
-- Predicted labels: `maintainability`
-- Explanation label: `maintainability`
+- Predicted labels: `security, usability`
+- Explanation label: `usability`
 
 | token/phrase | semantic amplitude contribution |
 |---|---:|
-| accessible by | 0.0183 |
-| accessible | 0.0183 |
-| external | 0.0182 |
-| internal and | 0.0114 |
-| internal | 0.0114 |
-| and external | 0.0114 |
-| system must | 0.0107 |
-| disputes | -0.0084 |
-| the disputes | -0.0080 |
-| must be | 0.0070 |
+| and | 0.0164 |
+| by | 0.0141 |
+| disputes | -0.0126 |
+| the disputes | -0.0121 |
+| disputes system | -0.0085 |
+| users | 0.0066 |
+| must | -0.0061 |
+| system | 0.0056 |
+| be | 0.0048 |
+| accessible by | -0.0025 |
 
 ## Per-label Classification Reports
 
@@ -140,30 +139,6 @@ maintainability       0.50      0.10      0.17        10
 
 ```
 
-### sentence_bert_logistic_regression
-
-```text
-                 precision    recall  f1-score   support
-
-   availability       0.50      0.58      0.54        12
-fault_tolerance       0.17      0.33      0.22         3
-          legal       0.60      0.60      0.60        10
-  look_and_feel       0.74      0.77      0.76        22
-maintainability       0.38      0.30      0.33        10
-    operability       0.54      0.76      0.63        17
-    performance       0.61      0.78      0.68        18
-    portability       0.62      0.71      0.67         7
-    scalability       0.58      0.78      0.67         9
-       security       0.78      0.91      0.84        23
-      usability       0.69      0.74      0.71        27
-
-      micro avg       0.62      0.72      0.67       158
-      macro avg       0.56      0.66      0.60       158
-   weighted avg       0.63      0.72      0.67       158
-    samples avg       0.67      0.78      0.69       158
-
-```
-
 ### quantum_inspired_projection
 
 ```text
@@ -193,22 +168,22 @@ maintainability       0.33      0.20      0.25        10
 ```text
                  precision    recall  f1-score   support
 
-   availability       0.50      0.75      0.60        12
-fault_tolerance       0.14      0.33      0.20         3
-          legal       0.78      0.70      0.74        10
-  look_and_feel       0.68      0.59      0.63        22
-maintainability       0.33      0.20      0.25        10
-    operability       0.39      0.41      0.40        17
-    performance       0.59      0.72      0.65        18
-    portability       0.43      0.86      0.57         7
-    scalability       0.33      0.67      0.44         9
-       security       0.88      0.65      0.75        23
-      usability       0.58      0.78      0.67        27
+   availability       0.78      0.58      0.67        12
+fault_tolerance       0.00      0.00      0.00         3
+          legal       1.00      0.50      0.67        10
+  look_and_feel       0.70      0.64      0.67        22
+maintainability       0.00      0.00      0.00        10
+    operability       0.38      0.35      0.36        17
+    performance       0.50      0.72      0.59        18
+    portability       0.80      0.57      0.67         7
+    scalability       0.80      0.44      0.57         9
+       security       0.20      1.00      0.33        23
+      usability       0.23      1.00      0.38        27
 
-      micro avg       0.54      0.63      0.58       158
-      macro avg       0.51      0.61      0.54       158
-   weighted avg       0.58      0.63      0.59       158
-    samples avg       0.58      0.69      0.60       158
+      micro avg       0.33      0.65      0.43       158
+      macro avg       0.49      0.53      0.45       158
+   weighted avg       0.47      0.65      0.47       158
+    samples avg       0.32      0.70      0.42       158
 
 ```
 
@@ -217,21 +192,21 @@ maintainability       0.33      0.20      0.25        10
 ```text
                  precision    recall  f1-score   support
 
-   availability       0.64      0.75      0.69        12
-fault_tolerance       1.00      0.33      0.50         3
-          legal       0.75      0.60      0.67        10
-  look_and_feel       0.62      0.73      0.67        22
-maintainability       0.50      0.30      0.38        10
-    operability       0.44      0.47      0.46        17
-    performance       0.57      0.72      0.63        18
-    portability       0.56      0.71      0.62         7
-    scalability       0.62      0.56      0.59         9
-       security       0.68      0.74      0.71        23
-      usability       0.61      0.85      0.71        27
+   availability       0.80      0.67      0.73        12
+fault_tolerance       0.00      0.00      0.00         3
+          legal       0.83      0.50      0.62        10
+  look_and_feel       0.68      0.59      0.63        22
+maintainability       0.50      0.10      0.17        10
+    operability       0.50      0.47      0.48        17
+    performance       0.68      0.72      0.70        18
+    portability       0.80      0.57      0.67         7
+    scalability       1.00      0.22      0.36         9
+       security       0.80      0.70      0.74        23
+      usability       0.62      0.78      0.69        27
 
-      micro avg       0.60      0.67      0.63       158
-      macro avg       0.63      0.61      0.60       158
-   weighted avg       0.61      0.67      0.63       158
-    samples avg       0.61      0.71      0.63       158
+      micro avg       0.68      0.58      0.63       158
+      macro avg       0.66      0.48      0.53       158
+   weighted avg       0.69      0.58      0.60       158
+    samples avg       0.60      0.64      0.60       158
 
 ```
