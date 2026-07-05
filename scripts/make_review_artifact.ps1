@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 $root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $output = Join-Path $root $OutputPath
-$staging = Join-Path $root "artifacts\review_artifact_staging"
+$staging = Join-Path ([System.IO.Path]::GetTempPath()) ("nfr_review_artifact_staging_" + [System.Guid]::NewGuid().ToString("N"))
 
 if (Test-Path -LiteralPath $staging) {
     Remove-Item -LiteralPath $staging -Recurse -Force
@@ -40,6 +40,14 @@ foreach ($item in $include) {
     New-Item -ItemType Directory -Path $destinationParent -Force | Out-Null
     Copy-Item -LiteralPath $source -Destination $destination -Recurse -Force
 }
+
+Get-ChildItem -LiteralPath $staging -Recurse -Directory -Force |
+    Where-Object { $_.Name -eq "__pycache__" -or $_.Name -like "*.egg-info" } |
+    Remove-Item -Recurse -Force
+
+Get-ChildItem -LiteralPath $staging -Recurse -File -Force |
+    Where-Object { $_.Extension -in @(".pyc", ".pyo") } |
+    Remove-Item -Force
 
 $readme = @'
 # Review Artifact

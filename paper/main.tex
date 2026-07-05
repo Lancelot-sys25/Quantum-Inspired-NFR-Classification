@@ -271,6 +271,15 @@ per-label centroid classifier and is the point where the model departs from
 Proposition~\ref{prop:reduction}.
 \end{proposition}
 
+\begin{proof}
+Expanding $\mathbf{p}\mathbf{M}'$ gives
+$\mathbf{p}((1-\lambda)\mathbf{I}+\lambda\mathbf{M})$, so the $l$-th component
+is $(1-\lambda)p_l+\lambda\sum_k p_kM_{kl}$. If $\mathbf{M}'$ were diagonal,
+each adjusted label score would depend only on its own projection score $p_l$.
+The off-diagonal entries $M_{kl}$ for $k\neq l$ therefore introduce explicit
+cross-label coupling through co-occurrence statistics.
+\end{proof}
+
 \section{Experimental Setup}
 \subsection{Datasets}
 \textbf{NICE multi-label dataset.} The main experiment uses the NICE dataset
@@ -611,8 +620,10 @@ For anonymous review, the artifact is available at the anonymized repository:
 
 \section*{Use of AI Tools}
 During the preparation of this manuscript, the authors used a large language
-model to assist with language editing and code refactoring. The authors verified
-all results and take full responsibility for the content of the paper.
+model to assist with language editing, code refactoring, and drafting of some
+text and experiment scaffolding. All AI-assisted material was reviewed,
+adapted, and verified by the authors, who take full responsibility for the
+content of the paper.
 
 \bibliographystyle{splncs04}
 \bibliography{references}
