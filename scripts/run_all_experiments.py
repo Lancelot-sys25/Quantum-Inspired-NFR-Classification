@@ -80,6 +80,23 @@ def main() -> None:
                 str(out_dir),
             ],
         ),
+        (
+            "nice_robustness_and_bootstrap",
+            [
+                python,
+                "scripts/run_nice_robustness_experiment.py",
+                "--data",
+                args.data,
+                "--seed",
+                str(args.seed),
+                "--top-k",
+                str(args.top_k),
+                "--random-trials",
+                str(args.random_trials),
+                "--out-dir",
+                str(out_dir),
+            ],
+        ),
     ]
 
     if not args.skip_promise:

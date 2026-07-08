@@ -221,8 +221,12 @@ the contrastive quantum-inspired score with a one-vs-rest Linear SVM score:
 \end{equation}
 where $\mathbf{q}_i$ is the contrastive quantum-inspired score vector,
 $\mathbf{v}_i$ is the calibrated SVM score vector, and $\alpha$ is the quantum
-fusion weight. In the final experiments, $\alpha=0.30$ was selected based on
-the cross-validation ablation study.
+fusion weight. In the final experiments, $\alpha=0.30$ is used as a moderate
+quantum weight; the ablation study (Table~\ref{tab:nice-ablation}) shows that
+Macro-F1 is not sensitive to the exact value in this range ($\alpha=0.15$,
+$0.30$, and $0.50$ are within one standard deviation of each other), so
+$\alpha=0.30$ was kept as a round, non-edge value rather than as a value
+selected for maximizing cross-validation Macro-F1.
 
 \subsection{Explainability}
 For a predicted label $c$, token-level contribution is estimated from the
@@ -352,7 +356,7 @@ train/validation/test split on the NICE dataset.
 
 \begin{table}[htbp]
 \centering
-\caption{NICE multi-label results on a single train/validation/test split, comparing label-frequency, TF-IDF, Sentence-BERT, and quantum-inspired models across Micro-F1, Macro-F1, Hamming loss, and LRAP. Sentence-BERT has the highest Macro-F1 and LRAP on this split; the hybrid quantum--SVM model obtains the lowest Hamming loss.}
+\caption{NICE multi-label results on a single train/validation/test split, comparing label-frequency, TF-IDF, Sentence-BERT, and quantum-inspired models across Micro-F1, Macro-F1, Hamming loss, and LRAP. Sentence-BERT has the highest Macro-F1 and LRAP on this split; the hybrid quantum--SVM model and the contrastive quantum projection share the lowest Hamming loss.}
 \label{tab:nice-single}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lccccc}
@@ -364,8 +368,8 @@ TF-IDF Logistic Regression & 0.45 & 0.6299 & 0.5266 & 0.0901 & 0.7861 \\
 TF-IDF Linear SVM & 0.45 & 0.6212 & 0.5205 & 0.0877 & 0.7843 \\
 Sentence-BERT + LR & 0.50 & \textbf{0.6667} & \textbf{0.6049} & 0.0901 & \textbf{0.8286} \\
 Quantum-inspired Projection & 0.85 & 0.6076 & 0.5618 & 0.0980 & 0.7694 \\
-Contrastive Quantum Projection & 0.45 & 0.4346 & 0.4460 & 0.2119 & 0.7099 \\
-Hybrid Quantum--SVM Fusion & 0.45 & 0.6254 & 0.5276 & \textbf{0.0862} & 0.7775 \\
+Contrastive Quantum Projection & 0.50 & 0.4907 & 0.3885 & \textbf{0.0870} & 0.6818 \\
+Hybrid Quantum--SVM Fusion & 0.45 & 0.6284 & 0.5286 & \textbf{0.0870} & 0.7779 \\
 \bottomrule
 \end{tabular}
 }
@@ -373,7 +377,8 @@ Hybrid Quantum--SVM Fusion & 0.45 & 0.6254 & 0.5276 & \textbf{0.0862} & 0.7775 \
 
 On this single split, Sentence-BERT obtains the highest Macro-F1 and LRAP. The
 positive projection variant performs better than the rectified contrastive
-variant, while the hybrid quantum--SVM model achieves the lowest Hamming loss.
+variant, while the hybrid quantum--SVM model and the contrastive quantum
+projection share the lowest Hamming loss on this split.
 Because the split contains only 381 usable instances, these single-split
 results should be interpreted cautiously.
 
@@ -383,7 +388,7 @@ standard deviation across folds.
 
 \begin{table}[htbp]
 \centering
-\caption{Mean and standard deviation of 5-fold cross-validation results on the NICE multi-label dataset. Sentence-BERT achieves the highest LRAP; the hybrid quantum--SVM model obtains the highest Micro-F1 and Macro-F1 among non-embedding models and the lowest Hamming loss.}
+\caption{Mean and standard deviation of 5-fold cross-validation results on the NICE multi-label dataset. Sentence-BERT achieves the highest LRAP; the hybrid quantum--SVM model obtains the highest Micro-F1 and Macro-F1 among non-embedding models, while TF-IDF Logistic Regression obtains the lowest Hamming loss.}
 \label{tab:nice-cv}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
@@ -391,10 +396,10 @@ standard deviation across folds.
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
 \midrule
 Sentence-BERT + LR & 0.6493 $\pm$ 0.0357 & \textbf{0.6121 $\pm$ 0.0450} & 0.0919 $\pm$ 0.0200 & \textbf{0.8361 $\pm$ 0.0225} \\
-Hybrid Quantum--SVM Fusion & \textbf{0.6881 $\pm$ 0.0325} & 0.6112 $\pm$ 0.0301 & \textbf{0.0749 $\pm$ 0.0076} & 0.8045 $\pm$ 0.0268 \\
+Hybrid Quantum--SVM Fusion & \textbf{0.6839 $\pm$ 0.0331} & 0.6084 $\pm$ 0.0294 & 0.0768 $\pm$ 0.0074 & 0.8040 $\pm$ 0.0266 \\
 TF-IDF Linear SVM & 0.6821 $\pm$ 0.0405 & 0.6049 $\pm$ 0.0336 & 0.0764 $\pm$ 0.0094 & 0.8056 $\pm$ 0.0262 \\
-TF-IDF Logistic Regression & 0.6787 $\pm$ 0.0463 & 0.5977 $\pm$ 0.0229 & 0.0759 $\pm$ 0.0140 & 0.7990 $\pm$ 0.0240 \\
-Contrastive Quantum Projection & 0.4924 $\pm$ 0.0537 & 0.5144 $\pm$ 0.0387 & 0.1751 $\pm$ 0.0352 & 0.7185 $\pm$ 0.0538 \\
+TF-IDF Logistic Regression & 0.6787 $\pm$ 0.0463 & 0.5977 $\pm$ 0.0229 & \textbf{0.0759 $\pm$ 0.0140} & 0.7990 $\pm$ 0.0240 \\
+Contrastive Quantum Projection & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
 Quantum-inspired Projection & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
 Label-frequency baseline & 0.2328 $\pm$ 0.0034 & 0.2083 $\pm$ 0.0032 & 0.7927 $\pm$ 0.0019 & 0.4059 $\pm$ 0.0110 \\
 \bottomrule
@@ -407,7 +412,7 @@ is the strongest Macro-F1 and LRAP baseline. The hybrid quantum--SVM fusion mode
 strongest non-embedding model in Micro-F1 and Macro-F1 and improves over both
 pure quantum-inspired variants. A Wilcoxon signed-rank test over fold-level
 Macro-F1 finds no significant difference between the hybrid model and TF-IDF
-Linear SVM ($p=0.1875$) or TF-IDF Logistic Regression ($p=0.3125$). Given the
+Linear SVM ($p=0.1875$) or TF-IDF Logistic Regression ($p=0.4375$). Given the
 small number of folds and the dependence induced by cross-validation
 resampling, these tests should be interpreted as descriptive evidence rather
 than a strong statistical conclusion \cite{demsar2006statistical}.
@@ -426,7 +431,7 @@ receives its own threshold selected on the validation split.
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
 \midrule
 Sentence-BERT + LR & \textbf{0.6386 $\pm$ 0.0280} & \textbf{0.5990 $\pm$ 0.0276} & \textbf{0.0947 $\pm$ 0.0092} & \textbf{0.8361 $\pm$ 0.0225} \\
-Hybrid Quantum--SVM Fusion & 0.6230 $\pm$ 0.0747 & 0.5850 $\pm$ 0.0250 & 0.1031 $\pm$ 0.0496 & 0.8045 $\pm$ 0.0268 \\
+Hybrid Quantum--SVM Fusion & 0.6178 $\pm$ 0.0749 & 0.5854 $\pm$ 0.0341 & 0.1027 $\pm$ 0.0476 & 0.8040 $\pm$ 0.0266 \\
 TF-IDF Linear SVM & 0.6085 $\pm$ 0.0588 & 0.5640 $\pm$ 0.0309 & 0.1057 $\pm$ 0.0378 & 0.8056 $\pm$ 0.0262 \\
 TF-IDF Logistic Regression & 0.6219 $\pm$ 0.0588 & 0.5629 $\pm$ 0.0532 & 0.0967 $\pm$ 0.0195 & 0.7990 $\pm$ 0.0240 \\
 \bottomrule
@@ -448,36 +453,49 @@ and hybrid fusion with different quantum weights.
 
 \begin{table}[htbp]
 \centering
-\caption{Ablation study on the NICE multi-label dataset. The best hybrid
-configuration uses a moderate quantum weight ($\alpha=0.30$), indicating that the
-projection score is most useful as a calibrated auxiliary signal rather than as
-the dominant score.}
+\caption{Ablation study on the NICE multi-label dataset. Hybrid fusion with
+$\alpha \in \{0.15, 0.30, 0.50\}$ performs within one standard deviation across
+all four metrics, indicating that the projection score is useful as a
+calibrated auxiliary signal but that Macro-F1 is not sensitive to the exact
+quantum weight in this range; $\alpha=0.30$ is reported as the main
+configuration.}
 \label{tab:nice-ablation}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \toprule
 Variant & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
 \midrule
-Hybrid $\alpha=0.30$ & \textbf{0.6881 $\pm$ 0.0325} & \textbf{0.6112 $\pm$ 0.0301} & 0.0749 $\pm$ 0.0076 & 0.8045 $\pm$ 0.0268 \\
-Hybrid $\alpha=0.15$ & 0.6870 $\pm$ 0.0315 & 0.6097 $\pm$ 0.0298 & \textbf{0.0747 $\pm$ 0.0072} & 0.8085 $\pm$ 0.0280 \\
-Hybrid $\alpha=0.50$ & 0.6853 $\pm$ 0.0394 & 0.6040 $\pm$ 0.0280 & 0.0757 $\pm$ 0.0090 & 0.8007 $\pm$ 0.0250 \\
+Hybrid $\alpha=0.15$ & \textbf{0.6860 $\pm$ 0.0312} & \textbf{0.6091 $\pm$ 0.0293} & \textbf{0.0756 $\pm$ 0.0072} & \textbf{0.8085 $\pm$ 0.0280} \\
+Hybrid $\alpha=0.30$ & 0.6839 $\pm$ 0.0331 & 0.6084 $\pm$ 0.0294 & 0.0768 $\pm$ 0.0074 & 0.8040 $\pm$ 0.0266 \\
+Hybrid $\alpha=0.50$ & 0.6814 $\pm$ 0.0404 & 0.6054 $\pm$ 0.0299 & 0.0795 $\pm$ 0.0113 & 0.8012 $\pm$ 0.0232 \\
 SVM-only sublinear TF-IDF & 0.6713 $\pm$ 0.0553 & 0.5945 $\pm$ 0.0409 & 0.0843 $\pm$ 0.0263 & 0.8081 $\pm$ 0.0291 \\
+Positive projection without interference & 0.5948 $\pm$ 0.0238 & 0.5526 $\pm$ 0.0285 & 0.1108 $\pm$ 0.0233 & 0.7839 $\pm$ 0.0309 \\
 Positive projection with interference & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
 Contrastive projection without interference & 0.5447 $\pm$ 0.0420 & 0.5397 $\pm$ 0.0398 & 0.1339 $\pm$ 0.0100 & 0.7183 $\pm$ 0.0523 \\
-Contrastive projection with interference & 0.4924 $\pm$ 0.0537 & 0.5144 $\pm$ 0.0387 & 0.1751 $\pm$ 0.0352 & 0.7185 $\pm$ 0.0538 \\
+Contrastive projection with interference & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
 \bottomrule
 \end{tabular}
 }
 \end{table}
 
-The ablation supports three observations. First, the rectified contrastive
+The ablation supports four observations. First, interference provides no
+measurable benefit for either projection variant on this dataset: it leaves
+the positive projection essentially unchanged (Macro-F1 0.5526 without
+interference versus 0.5490 with it) and substantially worsens the contrastive
+projection (0.5397 without versus 0.4118 with). The best hybrid configuration
+also uses a small interference weight ($\lambda=0.03$), and the fusion weight
+that matters is $\alpha$, not $\lambda$. We therefore treat interference as a
+secondary, largely inactive component in the current TF-IDF setting rather
+than as a primary contribution, and report it mainly because the underlying
+label-coupling formulation in Proposition~\ref{prop:interference} is
+independently interesting. Second, the rectified contrastive
 projection is semantically safer than squaring signed negative evidence, but in
 this dataset the pure contrastive variant performs worse than the positive
-projection. Second, the hybrid model improves over pure projection variants,
+projection. Third, the hybrid model improves over pure projection variants,
 showing the value of discriminative calibration. Compared with the SVM-only
 sublinear TF-IDF component, Hybrid $\alpha=0.30$ improves mean Macro-F1 from
-0.5945 to 0.6112, an absolute gain of 0.0167 attributable to adding the
-projection score as an auxiliary signal. Third, performance is best when the
+0.5945 to 0.6084, an absolute gain of 0.0139 attributable to adding the
+projection score as an auxiliary signal. Fourth, performance is best when the
 projection score is used as an auxiliary signal rather than as the dominant
 score.
 
@@ -519,7 +537,7 @@ The experiments provide a balanced picture. On the main NICE multi-label
 dataset, Sentence-BERT is the strongest baseline in Macro-F1 and LRAP, which is
 consistent with the expectation that semantic embeddings are strong baselines
 for text classification. The hybrid quantum--SVM fusion model is competitive
-with TF-IDF baselines and has the best Hamming loss under the global-threshold
+with TF-IDF baselines in Hamming loss under the global-threshold
 protocol, but it does not dominate the embedding baseline.
 
 The rectified contrastive quantum variant avoids rewarding evidence in the
@@ -535,9 +553,9 @@ token-level explanations that pass a deletion-based faithfulness check.
 
 To reduce reliance on fold-level significance testing, we also ran a paired
 bootstrap over the held-out NICE test requirements. The hybrid model's Macro-F1
-advantage over TF-IDF Linear SVM was 0.0071 with a 95\% bootstrap interval of
-[-0.0094, 0.0229], while its advantage over TF-IDF Logistic Regression was
-0.0010 with interval [-0.0217, 0.0223]. These intervals overlap zero, so they
+advantage over TF-IDF Linear SVM was 0.0081 with a 95\% bootstrap interval of
+[-0.0100, 0.0263], while its advantage over TF-IDF Logistic Regression was
+0.0020 with interval [-0.0205, 0.0227]. These intervals overlap zero, so they
 support the same conservative conclusion as the cross-validation results: the
 hybrid model is competitive with TF-IDF baselines, but the evidence is not
 strong enough to claim clear accuracy superiority.

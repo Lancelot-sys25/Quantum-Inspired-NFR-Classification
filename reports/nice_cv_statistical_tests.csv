@@ -1,3 +1,4 @@
 comparison,folds,wilcoxon_statistic,p_value,mean_macro_f1_difference
-hybrid_quantum_svm_fusion_vs_tfidf_linear_svm,5,2.0,0.1875,0.0063106856186122325
-hybrid_quantum_svm_fusion_vs_tfidf_logistic_regression,5,3.0,0.3125,0.013503794075933917
+hybrid_quantum_svm_fusion_vs_tfidf_linear_svm,5,2.0,0.1875,0.0035185023656178816
+hybrid_quantum_svm_fusion_vs_tfidf_logistic_regression,5,4.0,0.4375,0.010711610822939565
+hybrid_quantum_svm_fusion_vs_sentence_bert_logistic_regression,5,6.0,0.8125,-0.0036853008714595736

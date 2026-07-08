@@ -46,7 +46,7 @@ def model_suite(seed: int, include_sbert: bool = True) -> dict:
             Pipeline(
                 [
                     ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=1)),
-                    ("clf", LinearSVC(class_weight="balanced", dual="auto")),
+                    ("clf", LinearSVC(class_weight="balanced", dual="auto", random_state=seed)),
                 ]
             )
         ),

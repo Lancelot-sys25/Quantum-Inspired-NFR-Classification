@@ -347,7 +347,7 @@ def main() -> None:
         Pipeline(
             [
                 ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=1)),
-                ("clf", LinearSVC(class_weight="balanced", dual="auto")),
+                ("clf", LinearSVC(class_weight="balanced", dual="auto", random_state=args.seed)),
             ]
         )
     )

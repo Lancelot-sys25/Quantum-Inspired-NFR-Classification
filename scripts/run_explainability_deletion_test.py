@@ -164,6 +164,17 @@ def main() -> None:
         random_state=args.seed,
         stratify=stratify_key(y, labels),
     )
+    # Match run_nice_robustness_experiment.py's train/valid/test split so the
+    # projection model trained here is identical to the one used to compute
+    # the deletion-test numbers reported in the paper (Section: Explainability
+    # Evaluation). Without this, the two scripts trained on different amounts
+    # of data (100% vs 80% of train_idx) and produced numbers that didn't match.
+    train_idx, _valid_idx = train_test_split(
+        train_idx,
+        test_size=0.20,
+        random_state=args.seed,
+        stratify=stratify_key(y[train_idx], labels),
+    )
     x_train, x_test = x[train_idx], x[test_idx]
     y_train, y_test = y[train_idx], y[test_idx]
 

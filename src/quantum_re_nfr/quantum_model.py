@@ -180,7 +180,7 @@ class HybridQuantumSVMNFRClassifier(BaseEstimator, ClassifierMixin):
             Pipeline(
                 [
                     ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=1, sublinear_tf=True)),
-                    ("clf", LinearSVC(class_weight="balanced", dual="auto")),
+                    ("clf", LinearSVC(class_weight="balanced", dual="auto", random_state=self.random_state)),
                 ]
             )
         )
