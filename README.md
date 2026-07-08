@@ -38,9 +38,9 @@ This project introduces a **Quantum-Inspired Classifier** built upon semantic ve
 
 Ensure you have Python 3.10+ (Python 3.11.9 recommended) installed on your system.
 
-1. **Clone the repository:**
+1. **Obtain the repository:**
    ```bash
-   git clone https://github.com/Lancelot-sys25/Quantum-Inspired-NFR-Classification.git
+   # Clone or extract this repository, then:
    cd Quantum-Inspired-NFR-Classification
    ```
 
