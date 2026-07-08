@@ -29,6 +29,13 @@ def mask_and_renormalize(state: np.ndarray, indices: np.ndarray) -> np.ndarray:
     return masked / norm if norm else masked
 
 
+def keep_only_and_renormalize(state: np.ndarray, indices: np.ndarray) -> np.ndarray:
+    masked = np.zeros_like(state)
+    masked[indices] = state[indices]
+    norm = np.linalg.norm(masked)
+    return masked / norm if norm else masked
+
+
 def deletion_test(
     model: QuantumInspiredContrastiveNFRClassifier,
     x_test: np.ndarray,
@@ -65,6 +72,16 @@ def deletion_test(
                 random_indices = rng.choice(active_features, size=random_k, replace=False)
                 random_scores.append(label_score(model, mask_and_renormalize(state, random_indices), label_index))
 
+            # ERASER Sufficiency
+            sufficiency_score = label_score(model, keep_only_and_renormalize(state, top_indices), label_index)
+            random_sufficiency_scores = []
+            for _ in range(random_trials):
+                random_indices = rng.choice(active_features, size=random_k, replace=False)
+                random_sufficiency_scores.append(
+                    label_score(model, keep_only_and_renormalize(state, random_indices), label_index)
+                )
+            random_sufficiency_score = float(np.mean(random_sufficiency_scores))
+
             rows.append(
                 {
                     "sample_index": sample_index,
@@ -72,15 +89,15 @@ def deletion_test(
                     "base_score": base_score,
                     "top_deleted_score": top_score,
                     "random_deleted_score": float(np.mean(random_scores)),
-                    "top_score_drop": base_score - top_score,
-                    "random_score_drop": base_score - float(np.mean(random_scores)),
+                    "comprehensiveness": base_score - top_score,
+                    "random_comprehensiveness": base_score - float(np.mean(random_scores)),
+                    "sufficiency": base_score - sufficiency_score,
+                    "random_sufficiency": base_score - random_sufficiency_score,
                     "top_terms": ", ".join(feature_names[top_indices]),
                 }
             )
 
     detail = pd.DataFrame(rows)
-    mean_top_drop = detail["top_score_drop"].mean()
-    mean_random_drop = detail["random_score_drop"].mean()
     summary = pd.DataFrame(
         [
             {
@@ -90,9 +107,12 @@ def deletion_test(
                 "mean_base_score": detail["base_score"].mean(),
                 "mean_top_deleted_score": detail["top_deleted_score"].mean(),
                 "mean_random_deleted_score": detail["random_deleted_score"].mean(),
-                "mean_top_score_drop": mean_top_drop,
-                "mean_random_score_drop": mean_random_drop,
-                "drop_ratio_top_vs_random": mean_top_drop / mean_random_drop if mean_random_drop else np.nan,
+                "mean_comprehensiveness": detail["comprehensiveness"].mean(),
+                "mean_random_comprehensiveness": detail["random_comprehensiveness"].mean(),
+                "mean_sufficiency": detail["sufficiency"].mean(),
+                "mean_random_sufficiency": detail["random_sufficiency"].mean(),
+                "comprehensiveness_ratio": detail["comprehensiveness"].mean() / detail["random_comprehensiveness"].mean() if detail["random_comprehensiveness"].mean() else np.nan,
+                "sufficiency_ratio": detail["sufficiency"].mean() / detail["random_sufficiency"].mean() if detail["random_sufficiency"].mean() else np.nan,
             }
         ]
     )

@@ -51,6 +51,13 @@ def mask_and_renormalize(state: np.ndarray, indices: np.ndarray) -> np.ndarray:
     return masked / norm if norm else masked
 
 
+def keep_only_and_renormalize(state: np.ndarray, indices: np.ndarray) -> np.ndarray:
+    masked = np.zeros_like(state)
+    masked[indices] = state[indices]
+    norm = np.linalg.norm(masked)
+    return masked / norm if norm else masked
+
+
 def deletion_comparison(
     projection_model: QuantumInspiredContrastiveNFRClassifier,
     svm_model: OneVsRestClassifier,
@@ -101,6 +108,24 @@ def deletion_comparison(
                     )
                 )
 
+            # ERASER Sufficiency for projection
+            sufficiency_score = projection_label_score(
+                projection_model,
+                keep_only_and_renormalize(state, top_indices),
+                label_index,
+            )
+            random_sufficiency_scores = []
+            for _ in range(random_trials):
+                random_indices = rng.choice(active_projection_features, size=random_k, replace=False)
+                random_sufficiency_scores.append(
+                    projection_label_score(
+                        projection_model,
+                        keep_only_and_renormalize(state, random_indices),
+                        label_index,
+                    )
+                )
+            random_sufficiency_score = float(np.mean(random_sufficiency_scores))
+
             rows.append(
                 {
                     "sample_index": sample_index,
@@ -109,8 +134,10 @@ def deletion_comparison(
                     "base_score": base_score,
                     "top_deleted_score": top_score,
                     "random_deleted_score": float(np.mean(random_scores)),
-                    "top_score_drop": base_score - top_score,
-                    "random_score_drop": base_score - float(np.mean(random_scores)),
+                    "comprehensiveness": base_score - top_score,
+                    "random_comprehensiveness": base_score - float(np.mean(random_scores)),
+                    "sufficiency": base_score - sufficiency_score,
+                    "random_sufficiency": base_score - random_sufficiency_score,
                     "top_terms": ", ".join(feature_names[top_indices]),
                 }
             )
@@ -142,6 +169,27 @@ def deletion_comparison(
                 random_vector = random_vector.tocsr()
                 random_svm_scores.append(float(sigmoid(np.array(classifier.decision_function(random_vector)[0]))))
 
+            # ERASER Sufficiency for SVM
+            sufficiency_vector = vector.copy().tolil()
+            active_set = set(active_svm_features)
+            top_set = set(svm_top_indices)
+            for idx in active_set - top_set:
+                sufficiency_vector[0, idx] = 0
+            sufficiency_vector = sufficiency_vector.tocsr()
+            sufficiency_svm_score = float(sigmoid(np.array(classifier.decision_function(sufficiency_vector)[0])))
+
+            random_svm_sufficiency_scores = []
+            for _ in range(random_trials):
+                random_indices = rng.choice(active_svm_features, size=svm_random_k, replace=False)
+                random_sufficiency_vector = vector.copy().tolil()
+                for idx in active_set - set(random_indices):
+                    random_sufficiency_vector[0, idx] = 0
+                random_sufficiency_vector = random_sufficiency_vector.tocsr()
+                random_svm_sufficiency_scores.append(
+                    float(sigmoid(np.array(classifier.decision_function(random_sufficiency_vector)[0])))
+                )
+            random_svm_sufficiency_score = float(np.mean(random_svm_sufficiency_scores))
+
             svm_feature_names = np.array(vectorizer.get_feature_names_out())
             rows.append(
                 {
@@ -151,8 +199,10 @@ def deletion_comparison(
                     "base_score": base_svm_score,
                     "top_deleted_score": top_svm_score,
                     "random_deleted_score": float(np.mean(random_svm_scores)),
-                    "top_score_drop": base_svm_score - top_svm_score,
-                    "random_score_drop": base_svm_score - float(np.mean(random_svm_scores)),
+                    "comprehensiveness": base_svm_score - top_svm_score,
+                    "random_comprehensiveness": base_svm_score - float(np.mean(random_svm_scores)),
+                    "sufficiency": base_svm_score - sufficiency_svm_score,
+                    "random_sufficiency": base_svm_score - random_svm_sufficiency_score,
                     "top_terms": ", ".join(svm_feature_names[svm_top_indices]),
                 }
             )
@@ -161,16 +211,19 @@ def deletion_comparison(
     summary = (
         detail.groupby("explainer")
         .agg(
-            evaluated_label_assignments=("top_score_drop", "count"),
+            evaluated_label_assignments=("comprehensiveness", "count"),
             mean_base_score=("base_score", "mean"),
             mean_top_deleted_score=("top_deleted_score", "mean"),
             mean_random_deleted_score=("random_deleted_score", "mean"),
-            mean_top_score_drop=("top_score_drop", "mean"),
-            mean_random_score_drop=("random_score_drop", "mean"),
+            mean_comprehensiveness=("comprehensiveness", "mean"),
+            mean_random_comprehensiveness=("random_comprehensiveness", "mean"),
+            mean_sufficiency=("sufficiency", "mean"),
+            mean_random_sufficiency=("random_sufficiency", "mean"),
         )
         .reset_index()
     )
-    summary["drop_ratio_top_vs_random"] = summary["mean_top_score_drop"] / summary["mean_random_score_drop"]
+    summary["comprehensiveness_ratio"] = summary["mean_comprehensiveness"] / summary["mean_random_comprehensiveness"]
+    summary["sufficiency_ratio"] = summary["mean_sufficiency"] / summary["mean_random_sufficiency"]
     summary.insert(1, "top_k", top_k)
     summary.insert(2, "random_trials", random_trials)
     return detail, summary

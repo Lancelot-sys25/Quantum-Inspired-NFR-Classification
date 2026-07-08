@@ -45,7 +45,14 @@ def model_suite(seed: int) -> dict:
                 ]
             )
         ),
-        "positive_projection_with_interference": QuantumInspiredNFRClassifier(random_state=seed),
+        "positive_projection_no_interference": QuantumInspiredNFRClassifier(
+            random_state=seed,
+            interference_weight=0.0,
+        ),
+        "positive_projection_with_interference": QuantumInspiredNFRClassifier(
+            random_state=seed,
+            interference_weight=0.15,
+        ),
         "contrastive_projection_no_interference": QuantumInspiredContrastiveNFRClassifier(
             random_state=seed,
             interference_weight=0.0,
@@ -124,6 +131,7 @@ def write_report(report_path: Path, raw_path: Path, labels: list[str], fold_resu
         "## Ablation Meaning",
         "",
         "- `svm_only_sublinear_tfidf`: discriminative SVM component without quantum projection.",
+        "- `positive_projection_no_interference`: original centroid projection without label co-occurrence adjustment.",
         "- `positive_projection_with_interference`: original centroid projection with label co-occurrence adjustment.",
         "- `contrastive_projection_no_interference`: positive-minus-negative label directions without co-occurrence adjustment.",
         "- `contrastive_projection_with_interference`: contrastive projection with co-occurrence adjustment.",

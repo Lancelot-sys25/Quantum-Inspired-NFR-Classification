@@ -1,4 +1,4 @@
 comparison,iterations,observed_macro_f1_difference,ci95_low,ci95_high,bootstrap_p_two_sided
-hybrid_quantum_svm_fusion_vs_tfidf_linear_svm,2000,0.007078709085238,-0.009416855160184343,0.022909387341285427,0.407
-hybrid_quantum_svm_fusion_vs_tfidf_logistic_regression,2000,0.0009641550923994435,-0.021674018438780952,0.022319679979931378,0.982
-hybrid_quantum_svm_fusion_vs_quantum_contrastive_projection,2000,0.0815813521652472,0.033012384495698884,0.12502102304456203,0.0
+hybrid_quantum_svm_fusion_vs_tfidf_linear_svm,2000,0.008091200749410499,-0.009977185554777829,0.02627657421225731,0.376
+hybrid_quantum_svm_fusion_vs_tfidf_logistic_regression,2000,0.0019766467565719426,-0.0205236420077181,0.02271971199694938,0.918
+hybrid_quantum_svm_fusion_vs_quantum_contrastive_projection,2000,0.14006730066263207,0.0740740163470563,0.21267677511828958,0.0

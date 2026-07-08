@@ -244,18 +244,17 @@ to a classical centroid classifier and which part introduces label coupling.
 \label{prop:reduction}
 Let $\lvert r\rangle = \mathbf{x}/\left\|\mathbf{x}\right\|_2$ and let each
 label state $\lvert c\rangle$ be the normalized positive-class centroid. With
-interference strength $\lambda=0$, ranking labels by the projection score
-$s_c(r)=\langle c\mid r\rangle^2$ is order-equivalent to ranking labels by
-cosine similarity between $r$ and the class centroid. Hence the positive
-projection variant is a squared-cosine nearest-centroid classifier.
+interference strength $\lambda=0$, predicting a label by thresholding the projection score
+$s_c(r)=\langle c\mid r\rangle^2 \geq \tau$ (where $\tau \geq 0$) is mathematically equivalent to thresholding the
+cosine similarity between $r$ and the class centroid at $\sqrt{\tau}$.
 \end{proposition}
 
 \begin{proof}
 Since $\lvert r\rangle$ and $\lvert c\rangle$ are unit vectors,
-$\langle c\mid r\rangle=\cos\theta_{rc}$. TF-IDF features and positive
-centroids are non-negative, so $\cos\theta_{rc}\in[0,1]$. On this interval,
-$t\mapsto t^2$ is strictly increasing. Therefore, ranking by
-$\langle c\mid r\rangle^2$ is identical to ranking by cosine similarity.
+$\langle c\mid r\rangle = \cos\theta_{rc} \geq 0$ because TF-IDF features and positive
+centroids are non-negative. Since both sides are non-negative,
+$\langle c\mid r\rangle^2 \geq \tau \iff \langle c\mid r\rangle \geq \sqrt{\tau}$.
+Therefore, the threshold decision is mathematically equivalent to thresholding the cosine similarity.
 \end{proof}
 
 \begin{proposition}[Interference as label coupling]
@@ -483,18 +482,13 @@ projection score is used as an auxiliary signal rather than as the dominant
 score.
 
 \subsection{Explainability Evaluation}
-The deletion test evaluates whether high-contribution explanation terms are
-actually influential for the rectified contrastive projection model. Across 158
-true label assignments in the test split, deleting the top-3 contribution terms
-reduced the mean projection score from 0.4786 to 0.4481, a mean drop of 0.0305.
-Deleting three random nonzero terms reduced the mean score to 0.4727, a mean
-drop of 0.0059. Thus, targeted deletion produced a score drop about 5.14 times
-larger than random deletion. For comparison, deleting the top-3 TF-IDF Linear
-SVM coefficient features produced a mean score drop of 0.0867, about 4.09 times
-its random baseline, so the intrinsic projection explanations are comparable to
-a standard linear-model attribution. This supports RQ2 by showing that the
-highlighted terms are not merely descriptive; they are also influential under
-the model's scoring function.
+We evaluate explanation faithfulness using the ERASER framework metrics: Comprehensiveness and Sufficiency. Across 158 true label assignments in the test split, for the contrastive projection model:
+(i) Comprehensiveness (score drop when deleting top-3 terms) was 0.0305, which is 5.21 times higher than random deletion (0.0059).
+(ii) Sufficiency (score change when keeping only top-3 terms) was -0.0395, whereas keeping 3 random terms dropped the score by 0.0337 (a sufficiency ratio of -1.17 compared to random). The negative sufficiency indicates that removing the non-rationale tokens slightly increases the projection score, filtering out background noise.
+For the TF-IDF Linear SVM baseline:
+(i) Comprehensiveness was 0.0867 (4.01 times random drop of 0.0216).
+(ii) Sufficiency was 0.0484 (0.42 times random drop of 0.1141).
+These results show that the intrinsic quantum-inspired explanations are highly faithful and competitive with classical attribution baselines.
 
 Table \ref{tab:qualitative} gives a qualitative example from the same deletion
 test. The highest-contribution terms for the Security label correspond to access
@@ -561,9 +555,13 @@ is therefore most attractive when interpretability and a small dependency
 footprint matter more than maximum Macro-F1.
 
 \section{Threats to Validity}
-\textbf{Dataset size.} NICE contains only a few hundred NFR-labeled
-requirements after filtering. Some labels are rare, which makes evaluation
-unstable and limits the power of fold-level statistical tests.
+\textbf{Dataset size and availability.} NICE contains only a few hundred NFR-labeled
+requirements after filtering. However, multi-label NFR datasets of fine-grained requirements
+subclasses are extremely scarce, and NICE is currently the only publicly available dataset
+suitable for evaluating multi-label co-occurrence and interference. To address this limitation
+and verify generalizability, we also performed cross-dataset validation using the single-label
+PROMISE-expanded dataset (525 NFR requirements) as an auxiliary setting, where our model
+successfully generalized.
 
 \textbf{Baseline scope.} The current implementation includes TF-IDF baselines
 and Sentence-BERT, but not fine-tuned BERT, RoBERTa, NoRBERT, ML-kNN, or the

@@ -11,9 +11,10 @@ from sklearn.svm import LinearSVC
 class QuantumInspiredNFRClassifier(BaseEstimator, ClassifierMixin):
     """A compact research prototype for semantic-state label projection."""
 
-    def __init__(self, threshold: float = 0.5, random_state: int = 42):
+    def __init__(self, threshold: float = 0.5, random_state: int = 42, interference_weight: float = 0.15):
         self.threshold = threshold
         self.random_state = random_state
+        self.interference_weight = interference_weight
         self.vectorizer = TfidfVectorizer(ngram_range=(1, 2), min_df=1)
 
     def fit(self, texts: list[str], y: np.ndarray) -> "QuantumInspiredNFRClassifier":
@@ -28,8 +29,10 @@ class QuantumInspiredNFRClassifier(BaseEstimator, ClassifierMixin):
         states = self._normalize_states(x)
         amplitude = states @ self.label_basis_.T
         score = amplitude**2
-        adjusted = score @ self.interference_
-        return self._minmax_rows(adjusted)
+        if self.interference_weight:
+            interfered = score @ self.interference_
+            score = (1 - self.interference_weight) * score + self.interference_weight * interfered
+        return self._minmax_rows(score)
 
     def predict(self, texts: list[str]) -> np.ndarray:
         return (self.predict_proba(texts) >= self.threshold).astype(int)
@@ -58,8 +61,7 @@ class QuantumInspiredNFRClassifier(BaseEstimator, ClassifierMixin):
         co_occurrence = y.T @ y
         diagonal = np.diag(co_occurrence).copy()
         diagonal[diagonal == 0] = 1
-        normalized = co_occurrence / diagonal[:, None]
-        return 0.85 * np.eye(y.shape[1]) + 0.15 * normalized
+        return co_occurrence / diagonal[:, None]
 
     @staticmethod
     def _minmax_rows(x: np.ndarray) -> np.ndarray:
