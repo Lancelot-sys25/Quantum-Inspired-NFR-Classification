@@ -15,13 +15,17 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 
 $include = @(
     "requirements.txt",
+    "requirements-lock.txt",
     "pyproject.toml",
     "src",
     "scripts",
     "tests",
     "docs\artifact_submission_checklist.md",
+    "docs\final_submission_audit.md",
     "data\raw\PROMISE-relabeled-NICE.csv",
+    "data\raw\PROMISE_exp.arff",
     "data\processed\nice_multilabel_nfr.csv",
+    "data\processed\promise_exp_nfr_11class.csv",
     "reports",
     "paper\main.tex",
     "paper\references.bib",
@@ -61,9 +65,15 @@ submission.
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -e .
 .\.venv\Scripts\python.exe scripts\run_all_experiments.py
 .\.venv\Scripts\python.exe scripts\run_nice_robustness_experiment.py
 ```
+
+For exact reproduction of the submitted tables, use `requirements-lock.txt`
+instead of the loose dependency bounds in `requirements.txt`. The first full
+run downloads the `sentence-transformers/all-MiniLM-L6-v2` model into the
+local Hugging Face cache; subsequent runs can be executed from that cache.
 
 The main paper source is in `paper/main.tex`.
 '@

@@ -34,7 +34,8 @@ and label scores as squared projection amplitudes; a label interference matrix
 models NFR co-occurrence, and token-level amplitude contributions provide
 interpretability. We evaluate several quantum-inspired variants on the NICE
 multi-label dataset against TF-IDF Logistic Regression, TF-IDF Linear SVM, a
-Sentence-BERT baseline, and a label-frequency baseline. Under 5-fold
+Sentence-BERT baseline, a fine-tuned DistilBERT baseline, and a
+label-frequency baseline. Under 5-fold
 cross-validation, Sentence-BERT achieves the highest Macro-F1, while classical
 TF-IDF baselines and the hybrid quantum--SVM model perform comparably, with
 the hybrid model obtaining the highest Macro-F1 among non-embedding models.
@@ -91,7 +92,7 @@ The contributions of this paper are:
     \item a reproducible implementation for multi-label NFR classification experiments;
     \item quantum-inspired projection, contrastive projection, and hybrid quantum--SVM variants;
     \item token-level semantic amplitude explanations and a deletion-based faithfulness test;
-    \item empirical comparison against TF-IDF Logistic Regression, TF-IDF Linear SVM, Sentence-BERT, and a label-frequency baseline on the NICE dataset;
+    \item empirical comparison against TF-IDF Logistic Regression, TF-IDF Linear SVM, Sentence-BERT, fine-tuned DistilBERT, and a label-frequency baseline on the NICE dataset;
     \item an ablation study of projection type, label interference, and hybrid fusion weight.
 \end{itemize}
 
@@ -354,6 +355,7 @@ The compared baselines are:
     \item \textbf{TF-IDF Logistic Regression:} one-vs-rest Logistic Regression using unigram and bigram TF-IDF features.
     \item \textbf{TF-IDF Linear SVM:} one-vs-rest Linear SVM using unigram and bigram TF-IDF features.
     \item \textbf{Sentence-BERT + LR:} all-MiniLM-L6-v2 embeddings followed by one-vs-rest Logistic Regression.
+    \item \textbf{Fine-tuned DistilBERT:} distilbert-base-uncased fine-tuned directly for multi-label classification with BCE loss and per-label threshold calibration.
 \end{itemize}
 
 The quantum-inspired models are:
@@ -379,6 +381,7 @@ reproducibility.
 \centering
 \caption{Main hyperparameters used in the experiments.}
 \label{tab:hyperparameters}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{ll}
 \toprule
 Component & Setting \\
@@ -388,6 +391,7 @@ Sublinear TF-IDF & enabled for contrastive, hybrid, and SVM-only ablation \\
 Logistic Regression & one-vs-rest, class\_weight=balanced, max\_iter=3000 \\
 Linear SVM & one-vs-rest LinearSVC, class\_weight=balanced \\
 Sentence-BERT & all-MiniLM-L6-v2 + one-vs-rest Logistic Regression \\
+Fine-tuned DistilBERT & 2 epochs, batch size 16, max length 128, learning rate $5\times10^{-5}$ \\
 Positive projection interference & $\lambda=0.15$ \\
 Contrastive projection interference & $\lambda=0.05$ \\
 Hybrid projection interference & $\lambda=0.03$ \\
@@ -396,6 +400,7 @@ Threshold grid & 0.05 to 0.95 with step 0.05 \\
 Random seed & 42 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \section{Results}
@@ -497,6 +502,20 @@ threshold; the hybrid model's relative drop (-3.8\%) is smaller than TF-IDF
 Linear SVM's (-6.8\%) or TF-IDF Logistic Regression's (-5.8\%), suggesting the
 hybrid model is comparatively more robust to per-label threshold calibration
 rather than benefiting from it in absolute terms.
+
+\subsection{Fine-tuned Transformer Baseline}
+To address the possibility that frozen Sentence-BERT embeddings understate the
+strength of transformer baselines, we also fine-tuned DistilBERT directly on
+the NICE multi-label task. The model uses BCE loss with clipped per-label
+positive weights and validation-selected per-label thresholds. Under the same
+5-fold split protocol, fine-tuned DistilBERT obtains Micro-F1
+$0.5420\pm0.0569$, Macro-F1 $0.5333\pm0.0591$, Hamming loss
+$0.1402\pm0.0361$, and LRAP $0.7105\pm0.0516$. This is weaker than the frozen
+Sentence-BERT+LR baseline and the TF-IDF/hybrid models in our setting. The
+result suggests that, for this small and imbalanced dataset, direct
+fine-tuning of a general-purpose encoder is not automatically superior to
+strong linear baselines; it should not be interpreted as an exhaustive search
+over transformer architectures or hyperparameters.
 
 \subsection{Ablation Study}
 Table \ref{tab:nice-ablation} reports a 5-fold ablation study of the main
@@ -634,20 +653,19 @@ Macro-F1, 95\% CI $[0.074, 0.213]$, $p<0.001$): the quantum projection is too
 weak to deploy on its own and depends on the SVM component to be usable,
 rather than the reverse.
 
-Although Sentence-BERT obtains the highest Macro-F1 and LRAP, the
-quantum-inspired hybrid model occupies a different point in the
-accuracy--interpretability trade-off, without a confirmed accuracy advantage
-over classical baselines to offer alongside it. Sentence-BERT relies on a
-pretrained transformer encoder and produces dense embeddings whose individual
-dimensions are not directly interpretable, so explanations require post-hoc
-methods such as LIME or SHAP \cite{ribeiro2016lime,lundberg2017shap}. In
-contrast, the projection model yields token-level contributions that are
-intrinsic to the scoring function and pass a deletion-based faithfulness
-check, at accuracy that is statistically indistinguishable from TF-IDF
-baselines and requires no pretrained model. The method is therefore most
-attractive when intrinsic interpretability and a small dependency footprint
-matter more than maximum Macro-F1, not as an accuracy improvement in its own
-right.
+Although Sentence-BERT obtains the highest Macro-F1 and LRAP, the hybrid
+projection model occupies a different point in the tradeoff between accuracy
+and interpretability. It does not add a confirmed accuracy advantage over
+classical baselines. Sentence-BERT relies on a pretrained transformer encoder
+and produces dense embeddings whose individual dimensions are not directly
+interpretable; explanations therefore require post-hoc methods such as LIME
+\cite{ribeiro2016lime} or SHAP \cite{lundberg2017shap}. In contrast, the
+projection model yields token-level contributions intrinsic to the scoring
+function and passes a deletion-based faithfulness check, while remaining
+statistically indistinguishable from TF-IDF baselines. The method is therefore
+most attractive when intrinsic interpretability and a small dependency
+footprint matter more than maximum Macro-F1, not as an accuracy improvement
+in its own right.
 
 \section{Threats to Validity}
 \textbf{Dataset size and availability.} NICE contains only a few hundred
@@ -676,24 +694,16 @@ account of where the quantum-inspired geometry helps or does not, but
 explicitly insufficient to support any claim that the observed accuracy
 ranking generalizes beyond NICE.
 
-\textbf{Baseline scope.} The current implementation includes TF-IDF
-baselines and a frozen Sentence-BERT encoder, but not a fine-tuned
-transformer (BERT, RoBERTa, or NoRBERT), ML-kNN, or the small-language-model
-classifier from the NICE paper. A fine-tuned transformer would very likely
-obtain the highest Macro-F1 of any baseline in this comparison, since
-fine-tuning adapts all encoder parameters to the NFR classification task
-rather than using a frozen general-purpose sentence embedding; its absence
-means the gap reported here between the quantum-inspired hybrid model and
-the strongest baseline (Sentence-BERT) is a lower bound on the true gap to
-the strongest feasible classical model, not an estimate of it. We leave
-this comparison to future work rather than report a single, non-cross-validated
-fine-tuning run, which would not meet the reproducibility standard --- cross-validated,
-seed-controlled, and checked against a pinned dependency environment --- that
-we impose on every other model in this study. This does not affect the
-paper's central claims, which compare the quantum-inspired hybrid model
-against classical TF-IDF baselines and a frozen embedding baseline, and
-which are explicitly framed around interpretability rather than
-establishing state-of-the-art accuracy.
+\textbf{Baseline scope.} The current implementation includes TF-IDF baselines,
+a frozen Sentence-BERT encoder, and a cross-validated fine-tuned DistilBERT
+baseline. It does not include NoRBERT, RoBERTa, ML-kNN, or the
+small-language-model classifier from the NICE paper. The DistilBERT result
+reduces the risk that the comparison relies only on frozen embeddings, but it
+is not an exhaustive neural baseline study: different pretrained encoders,
+longer schedules, or domain-specific requirements models could change the
+ranking. This does not affect the paper's central claims, which are explicitly
+framed around interpretability and diagnostic ablation rather than
+state-of-the-art accuracy.
 
 \textbf{Model simplicity.} The quantum-inspired models are based on TF-IDF
 semantic states, projection directions, and score fusion. They do not yet use
@@ -732,11 +742,11 @@ useful quantum-inspired component in the current implementation, while pure
 contrastive projection requires further refinement.
 
 Future work should integrate contextual embeddings into the quantum-inspired
-representation, compare with fine-tuned BERT/RoBERTa \cite{liu2019roberta} and
-NoRBERT baselines under the same cross-validated protocol used here, evaluate
-ML-kNN \cite{zhang2007mlknn} as a classical multi-label baseline, test the
-approach on a second multi-label NFR corpus to check generalization beyond
-NICE, and collect human rationale judgments for explanation quality.
+representation and compare with additional fine-tuned BERT/RoBERTa
+\cite{liu2019roberta} and NoRBERT baselines under broader tuning budgets. It
+should also evaluate ML-kNN \cite{zhang2007mlknn} as a classical multi-label
+baseline, test the approach on a second multi-label NFR corpus, and collect
+human rationale judgments for explanation quality.
 
 \section*{Reproducibility}
 The implementation contains scripts for reproducing the experiments:
@@ -747,6 +757,7 @@ The implementation contains scripts for reproducing the experiments:
     \item \texttt{scripts/run\_nice\_ablation\_experiment.py}
     \item \texttt{scripts/run\_explainability\_deletion\_test.py}
     \item \texttt{scripts/run\_nice\_robustness\_experiment.py}
+    \item \texttt{scripts/run\_nice\_finetuned\_transformer\_experiment.py}
     \item \texttt{scripts/run\_all\_experiments.py}
     \item \texttt{scripts/run\_promise\_experiment.py}
 \end{itemize}

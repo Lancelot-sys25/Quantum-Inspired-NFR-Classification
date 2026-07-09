@@ -1,0 +1,2 @@
+model,micro_f1_mean,micro_f1_std,macro_f1_mean,macro_f1_std,weighted_f1_mean,weighted_f1_std,hamming_loss_mean,hamming_loss_std,label_ranking_average_precision_mean,label_ranking_average_precision_std,threshold_mean
+finetuned_distilbert_base_uncased,0.5420186222078651,0.05688833995429892,0.5332765221160884,0.059093492701746145,0.5726798494429566,0.046651163470500946,0.14016342509165475,0.03606698342577946,0.710502567418152,0.05155163704124456,0.5581818181818183

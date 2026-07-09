@@ -54,5 +54,5 @@ Mô hình có thể bổ sung thành phần interference để điều chỉnh t
 
 ## Hướng nộp bài
 
-Hội nghị mục tiêu: **EAI FISAT 2026, FPT University HCMC, 25-27/11/2026**.
+Hội nghị mục tiêu: **EAI FISAT 2026, Ho Chi Minh City, 25-27/11/2026**.
 

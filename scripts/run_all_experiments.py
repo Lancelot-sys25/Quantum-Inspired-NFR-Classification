@@ -20,6 +20,11 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--no-sbert", action="store_true", help="Skip optional Sentence-BERT baselines.")
     parser.add_argument("--skip-promise", action="store_true", help="Skip the auxiliary PROMISE-expanded experiment.")
+    parser.add_argument(
+        "--include-finetuned-transformer",
+        action="store_true",
+        help="Also run the CPU-intensive fine-tuned DistilBERT baseline.",
+    )
     parser.add_argument("--top-k", type=int, default=3)
     parser.add_argument("--random-trials", type=int, default=50)
     args = parser.parse_args()
@@ -112,6 +117,36 @@ def main() -> None:
                     str(args.seed),
                     "--out-dir",
                     str(out_dir),
+                ],
+            )
+        )
+
+    if args.include_finetuned_transformer:
+        steps.append(
+            (
+                "nice_finetuned_transformer",
+                [
+                    python,
+                    "scripts/run_nice_finetuned_transformer_experiment.py",
+                    "--data",
+                    args.data,
+                    "--folds",
+                    str(args.folds),
+                    "--seed",
+                    str(args.seed),
+                    "--out-dir",
+                    str(out_dir),
+                    "--model-name",
+                    "distilbert-base-uncased",
+                    "--epochs",
+                    "2",
+                    "--batch-size",
+                    "16",
+                    "--learning-rate",
+                    "5e-5",
+                    "--use-pos-weight",
+                    "--calibration",
+                    "per_label",
                 ],
             )
         )

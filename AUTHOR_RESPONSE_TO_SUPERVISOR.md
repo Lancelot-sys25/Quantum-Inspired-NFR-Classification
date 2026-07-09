@@ -1,6 +1,6 @@
 # Response to Supervisor
 
-This document responds point-by-point to `NHAN_XET_BAI_NFR_FISAT_2026.md`. Every claim below is backed by a file or number that can be independently checked; no new experiments were run to produce this response, and no numbers were invented.
+This document responds point-by-point to `NHAN_XET_BAI_NFR_FISAT_2026.md`. Every claim below is backed by a file or number that can be independently checked; all newly added numbers come from rerun scripts recorded in `reports/`, and no numbers were invented.
 
 ---
 
@@ -55,15 +55,15 @@ Bootstrap (2000 resamples, held-out split): Hybrid vs. SVM +0.0081, 95% CI [−0
 
 ## A3 — Single, small dataset (~381 samples)
 
-**Why only one dataset is currently used.** Multi-label NFR datasets with fine-grained requirement subclasses are scarce; to the best of our knowledge, NICE is the only public dataset suitable for evaluating multi-label co-occurrence and interference at the time of writing. This is stated explicitly in the paper, not left implicit.
+**Why only one multi-label dataset is currently used.** Multi-label NFR datasets with fine-grained requirement subclasses are scarce; to the best of our knowledge, NICE is the only public dataset suitable for evaluating multi-label co-occurrence and interference at the time of writing. This is stated explicitly in the paper, not left implicit.
 
-**Why no fabricated experiment was added.** A fine-tuned-transformer baseline (DistilBERT) was attempted during this revision but produced only an incomplete, non-cross-validated run (stopped mid-fold) under time constraints; rather than report a single unverified run — which would not meet the reproducibility bar (cross-validated, seed-controlled, pinned dependency environment) applied to every other model in the paper — it was discarded and not cited anywhere in the manuscript or this response. No second multi-label dataset was substituted either. Both remain explicitly open, not silently assumed solved.
+**Fine-tuned transformer baseline added.** A cross-validated DistilBERT baseline was added via `scripts/run_nice_finetuned_transformer_experiment.py`: `distilbert-base-uncased`, 5 folds, 2 epochs per fold, batch size 16, max length 128, learning rate 5e-5, BCE loss with clipped per-label positive weights, and per-label thresholds selected on validation data. It obtains Macro-F1 `0.5333 ± 0.0591`, Micro-F1 `0.5420 ± 0.0569`, Hamming loss `0.1402 ± 0.0361`, and LRAP `0.7105 ± 0.0516` (`reports/nice_finetuned_transformer_distilbert_base_uncased_summary.csv`). It is weaker than the frozen Sentence-BERT+LR baseline and the TF-IDF/hybrid models in this small-data setting.
 
-**Explicit acknowledgment of the limitation.** `paper/main.tex`, §Threats to Validity ("Dataset size and availability", "Baseline scope"): states plainly that a single dataset cannot establish that the observed model ranking generalizes, that NICE's own vocabulary/label distribution could independently drive the ranking, and that the reported gap to Sentence-BERT is a lower bound (a fine-tuned transformer would likely do better), not an estimate of the true gap.
+**Explicit acknowledgment of the limitation.** `paper/main.tex`, §Threats to Validity ("Dataset size and availability", "Baseline scope"): states plainly that a single dataset cannot establish that the observed model ranking generalizes, that NICE's own vocabulary/label distribution could independently drive the ranking, and that the new DistilBERT baseline reduces but does not eliminate baseline-scope risk because NoRBERT, RoBERTa, ML-kNN, and the NICE paper's small-language-model classifier are still not included.
 
-**Future work.** Conclusion, Future Work paragraph now explicitly lists: fine-tuned BERT/RoBERTa/NoRBERT baselines under the same cross-validated protocol, ML-kNN as a classical multi-label baseline, evaluation on a second multi-label NFR corpus, and human rationale judgments.
+**Future work.** Conclusion, Future Work paragraph now explicitly lists additional tuned BERT/RoBERTa/NoRBERT baselines under broader tuning budgets, ML-kNN as a classical multi-label baseline, evaluation on a second multi-label NFR corpus, and human rationale judgments.
 
-**Files/sections modified.** `paper/main.tex`: §Threats to Validity ("Dataset size and availability", "Baseline scope" — both rewritten), Conclusion (Future Work sentence extended). No experiment files were touched.
+**Files/sections modified.** `paper/main.tex`: Compared Models, Hyperparameters, Results, §Threats to Validity ("Dataset size and availability", "Baseline scope"), Conclusion; `scripts/run_nice_finetuned_transformer_experiment.py`; `reports/nice_finetuned_transformer_distilbert_base_uncased_*`.
 
 ---
 
@@ -100,11 +100,11 @@ Bootstrap (2000 resamples, held-out split): Hybrid vs. SVM +0.0081, 95% CI [−0
 
 ## B1 — Anonymity
 
-Verified by direct, repository-wide search (`grep -rniE` for GitHub usernames, real names, emails, "FPT") across every `.tex`, `.md`, `.py`, `.bib`, `.json`, `.txt`, `.ps1` file. Found and fixed one active leak: `README.md` contained the real GitHub clone URL (`github.com/Lancelot-sys25/...`); replaced with a generic instruction that preserves usability. Re-ran the same search after the fix: clean, with the single expected exception of `paper/main_cameraready.tex` (which contains real author names/affiliation/emails by design, and is explicitly not the file submitted for review — see B4).
+Verified by direct, repository-wide search for usernames, real names, emails, institution names, and original repository links across every `.tex`, `.md`, `.py`, `.bib`, `.json`, `.txt`, `.ps1` file. Found and fixed one active leak in `README.md`; replaced it with a generic instruction that preserves usability. Re-ran the same search after the fix: clean, with the single expected exception of the non-anonymous camera-ready source, which is explicitly not submitted for review.
 
 ## B2 — Artifact
 
-The anonymized artifact (`artifacts/nfr_eai_fisat_2026_review_artifact.zip`) was **regenerated from scratch**, not patched, via `scripts/make_review_artifact.ps1` (an allowlist-based packager that only copies `requirements.txt`, `pyproject.toml`, `src/`, `scripts/`, `tests/`, `docs/artifact_submission_checklist.md`, the dataset CSVs, `reports/`, and the four named `paper/` files, and writes fresh, generic `README.md`/`ARTIFACT_README.md` content — never touching `.git`, `main_cameraready.tex`, caches, or logs). After regeneration: the zip's `paper/main.tex` was diffed against the current file and found **byte-identical**; the full extracted contents were re-searched for identifying strings and found clean (only third-party citation URLs in `references.bib` and the paper's own anonymous 4open.science link remain).
+The anonymized artifact (`artifacts/nfr_eai_fisat_2026_review_artifact.zip`) was **regenerated from scratch**, not patched, via `scripts/make_review_artifact.ps1` (an allowlist-based packager that only copies the reproducibility files needed for review and writes fresh, generic `README.md`/`ARTIFACT_README.md` content — never touching `.git`, non-anonymous camera-ready sources, caches, or logs). After regeneration: the zip's `paper/main.tex` was diffed against the current file and found **byte-identical**; the full extracted contents were re-searched for identifying strings and found clean (only third-party citation URLs in `references.bib` and the paper's own anonymous 4open.science link remain).
 
 ## B3 — AI disclosure
 
@@ -115,13 +115,13 @@ Confirmed the disclosure in `paper/main.tex`, §Use of AI Tools matches the actu
 This repository cannot submit the paper on the authors' behalf. At submission time, the authors must manually confirm:
 - The file uploaded to Confy+ is the **anonymous** `paper/main.tex` (author block reads "Anonymous Author(s)").
 - The accompanying source `.zip` contains `llncs.cls`, `splncs04.bst`, `references.bib`, and the anonymous `main.tex` only.
-- **`paper/main_cameraready.tex` is never uploaded for review** — it contains real names, FPT University, and personal emails, and exists solely for post-acceptance use.
+- The non-anonymous camera-ready source is never uploaded for review; it exists solely for post-acceptance use.
 
 ## B5 — Compilation, page count, track/scope
 
-**Compilation status:** Successful. Compiled end-to-end with a local MiKTeX installation (`pdflatex → bibtex → pdflatex → pdflatex`); all three `pdflatex` passes returned exit code 0; zero undefined citations or references remained after the final pass; only one warning, `amsmath: Unable to redefine math accent \vec` (a known, harmless interaction with `lmodern`, no content impact). The compiled PDF is committed at `paper/main.pdf`.
+**Compilation status:** Successful. Compiled end-to-end with Tectonic 0.16.9; the build completed with BibTeX and produced `paper/main.pdf`. Zero undefined citations or references remained after the final pass. Remaining warnings are minor overfull/underfull boxes and the known `amsmath: Unable to redefine math accent \vec` warning, with no content impact.
 
-**Page count:** 16 pages total. Per-page text extraction (via `pypdf`) shows the Conclusion ends roughly 40% down page 15, with the Reproducibility and Use of AI Tools sections and the reference list filling the remainder of page 15 and all of page 16. Body (Introduction through Conclusion, excluding references and disclosure sections, per the supervisor's counting rule) is therefore **approximately 14–15 pages** — within the required 12–15 page range for a full paper, though close to the upper bound.
+**Page count:** 17 pages total after adding the fine-tuned DistilBERT baseline. Per-page text extraction (via `pypdf`) shows `Conclusion` begins on page 14, `Reproducibility` and `Use of AI Tools` begin on page 15, and `References` begin on page 16. Body (Introduction through Conclusion, excluding references and disclosure sections, per the supervisor's counting rule) is therefore **approximately 14 pages** — within the requested 12–15 page body range.
 
 **Track/Scope:** Not verifiable from the repository — selecting the correct track and Scope on Confy+ is a Confy+ web-form action the authors must perform manually; no file in this repository records or determines it.
 

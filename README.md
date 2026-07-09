@@ -19,8 +19,8 @@ This project introduces a **Quantum-Inspired Classifier** built upon semantic ve
 
 ```directory
 ├── data/
-│   ├── raw/                 # Original requirements files (PROMISE-relabeled-NICE.csv)
-│   └── processed/           # Filtered multi-label dataset (nice_multilabel_nfr.csv)
+│   ├── raw/                 # Original requirements files (NICE and PROMISE_exp)
+│   └── processed/           # Filtered/derived datasets used by the scripts
 ├── docs/                    # Reproducibility checklists and documentation
 ├── paper/                   # LaTeX manuscript files (main.tex, references.bib, style classes)
 ├── reports/                 # Auto-generated experiment reports and raw metric outputs
@@ -60,7 +60,22 @@ Ensure you have Python 3.10+ (Python 3.11.9 recommended) installed on your syste
    ```bash
    pip install --upgrade pip
    pip install -r requirements.txt
+   pip install -e .
    ```
+
+For bit-level reproduction of the submitted tables, use the pinned environment:
+```bash
+pip install -r requirements-lock.txt
+pip install -e .
+```
+
+The optional Sentence-BERT baseline downloads
+`sentence-transformers/all-MiniLM-L6-v2` on its first run. If the first run is
+interrupted by a network error, run the pipeline again after the model is cached,
+or pre-cache it with:
+```bash
+python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+```
 
 ---
 
@@ -74,6 +89,10 @@ To run preprocessing, baseline training (including TF-IDF and SBERT), quantum mo
 python scripts/run_all_experiments.py
 ```
 The summary report will be generated at `reports/run_all_experiments_summary.md`.
+The fine-tuned DistilBERT baseline is CPU-intensive and can be included with:
+```bash
+python scripts/run_all_experiments.py --include-finetuned-transformer
+```
 
 ### 2. Ablation Studies (Noise & Projector Configurations)
 To analyze the impact of the quantum interference matrix (noise coupling) and test projection combinations:
@@ -94,6 +113,14 @@ To test generalizability, we validate the model's performance on the single-labe
 ```bash
 python scripts/run_promise_experiment.py
 ```
+The review artifact includes `data/raw/PROMISE_exp.arff` so this auxiliary
+experiment can run without manually fetching a second dataset.
+
+### 5. Fine-tuned Transformer Baseline
+To run the task-adapted DistilBERT baseline reported in the paper:
+```bash
+python scripts/run_nice_finetuned_transformer_experiment.py --model-name distilbert-base-uncased --folds 5 --epochs 2 --batch-size 16 --learning-rate 5e-5 --use-pos-weight --calibration per_label
+```
 
 ---
 
@@ -105,13 +132,18 @@ Below is a summary of the empirical findings obtained during our evaluation:
 
 | Classifier | Micro-F1 | Macro-F1 | Hamming Loss | LRAP |
 | :--- | :---: | :---: | :---: | :---: |
-| Label Frequency Baseline | 0.0000 | 0.0000 | 0.1651 | 0.3807 |
-| TF-IDF Logistic Regression | 0.5487 | 0.4435 | 0.1259 | 0.6974 |
-| **TF-IDF Linear SVM** | 0.6272 | 0.5367 | 0.1118 | 0.7634 |
-| **Hybrid (Quantum + SVM)** | **0.6288** | **0.5438** | **0.1089** | 0.7712 |
-| *Sentence-BERT (Dense Embedding)* | *0.6775* | *0.6124* | *0.1027* | *0.8174* |
+| Label Frequency Baseline | 0.2328 | 0.2083 | 0.7927 | 0.4059 |
+| TF-IDF Logistic Regression | 0.6787 | 0.5977 | **0.0759** | 0.7990 |
+| TF-IDF Linear SVM | 0.6821 | 0.6049 | 0.0764 | 0.8056 |
+| **Hybrid (Quantum + SVM)** | **0.6839** | 0.6084 | 0.0768 | 0.8040 |
+| *Sentence-BERT (Dense Embedding)* | *0.6493* | **0.6121** | *0.0919* | **0.8361** |
+| Fine-tuned DistilBERT | 0.5420 | 0.5333 | 0.1402 | 0.7105 |
 
-*Note: SBERT acts as a dense embedding baseline which yields higher raw metrics but operates as a black-box model requiring deep neural structures, whereas the Hybrid model remains fully explainable.*
+*Note: Sentence-BERT has the highest Macro-F1 and LRAP. The Hybrid model is the
+strongest non-embedding model by Macro-F1, but its gain over TF-IDF baselines is
+small and not statistically significant at the current dataset size. Fine-tuned
+DistilBERT is included as a task-adapted neural baseline and underperforms the
+linear and hybrid baselines in this small-data setting.*
 
 ### Explanation Faithfulness (ERASER Benchmark)
 
