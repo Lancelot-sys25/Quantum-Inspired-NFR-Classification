@@ -1,5 +1,10 @@
 # Response to Supervisor
 
+Latest feedback round: see `docs/supervisor_response_latest.md` for the
+2026-07-13 response covering page count, positive contribution framing,
+DistilBERT table placement, AI disclosure ownership, ERASER sufficiency, and
+artifact anonymity.
+
 This document responds point-by-point to `NHAN_XET_BAI_NFR_FISAT_2026.md`. Every claim below is backed by a file or number that can be independently checked; all newly added numbers come from rerun scripts recorded in `reports/`, and no numbers were invented.
 
 ---

@@ -8,7 +8,8 @@ def run_step(name: str, command: list[str], cwd: Path) -> dict:
     print(f"\n=== {name} ===")
     print(" ".join(command))
     completed = subprocess.run(command, cwd=cwd, text=True)
-    return {"step": name, "returncode": completed.returncode, "command": " ".join(command)}
+    display_command = ["python" if i == 0 else part for i, part in enumerate(command)]
+    return {"step": name, "returncode": completed.returncode, "command": " ".join(display_command)}
 
 
 def main() -> None:

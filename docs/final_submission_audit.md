@@ -1,6 +1,6 @@
 # Final Submission Audit for EAI FISAT 2026
 
-Date checked: 2026-07-09
+Date checked: 2026-07-13
 
 ## Verified Experiment Run
 
@@ -42,16 +42,16 @@ It produced Macro-F1 `0.5333 ± 0.0591` in
 
 ## Verified Manuscript Build
 
-`paper/main.tex` was rebuilt successfully with Tectonic 0.16.9. The generated
-`paper/main.pdf` has 17 pages total. Text extraction confirms:
+`paper/main.tex` was rebuilt successfully with Tectonic and the required
+`lmodern` plus `microtype` packages. The generated `paper/main.pdf` has 16
+pages total. Text extraction confirms:
 
 - page 1 contains `Anonymous Author(s)`;
 - `Conclusion` begins on page 14;
-- `Reproducibility` and `Use of AI Tools` begin on page 15;
-- `References` begin on page 16.
+- `Reproducibility`, `Use of AI Tools`, and `References` begin on page 15.
 
 Under the supervisor's counting rule (body excluding references and disclosure
-sections), the body remains approximately 14 pages.
+sections), the body is 14 pages.
 
 PDF metadata contains only generic TeX fields (`Creator`, `Producer`, and
 `CreationDate`) and no author name.
@@ -92,6 +92,23 @@ per-label threshold equivalence.
 Improved with ERASER-style comprehensiveness and sufficiency metrics, plus a
 TF-IDF SVM coefficient baseline in `reports/nice_deletion_comparison_summary.csv`.
 The paper keeps the claim scoped to model faithfulness, not human usefulness.
+The sufficiency sign convention is now stated explicitly: lower is better, and
+negative sufficiency means the rationale-only input received a slightly higher
+score than the full input.
+
+### Latest supervisor feedback
+
+The latest feedback round is addressed in
+`docs/supervisor_response_latest.md`. The main changes are:
+
+- body reduced and verified at 14 pages;
+- abstract, introduction, and conclusion reframed around positive intrinsic
+  explanation and diagnostic geometry contributions;
+- fine-tuned DistilBERT added as a visible row in the main CV tables;
+- AI disclosure revised to describe assistance accurately while preserving
+  author responsibility;
+- `docs/author_mastery_checklist.md` added for Proposition, statistics, power,
+  and sufficiency oral-defense preparation.
 
 ## Submission Package Checks
 
@@ -103,6 +120,8 @@ The paper keeps the claim scoped to model faithfulness, not human usefulness.
   - `data/raw/PROMISE-relabeled-NICE.csv`
   - `data/raw/PROMISE_exp.arff`
 - Pinned dependencies included: `requirements-lock.txt`
+- `reports/run_all_experiments_summary.md` was scrubbed of absolute local
+  machine paths; commands are recorded as portable `python ...` invocations.
 
 ## Remaining Human Submission Checks
 

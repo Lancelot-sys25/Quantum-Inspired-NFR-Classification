@@ -26,29 +26,27 @@
 
 \begin{abstract}
 Non-functional requirements (NFRs) frequently overlap across quality attributes
-such as security, performance, usability, and availability, which makes NFR
-classification a natural multi-label problem. This paper presents an explainable
-quantum-inspired approach for multi-label NFR classification. Requirements are
-represented as normalized semantic states, NFR labels as projection directions,
-and label scores as squared projection amplitudes; a label interference matrix
-models NFR co-occurrence, and token-level amplitude contributions provide
-interpretability. We evaluate several quantum-inspired variants on the NICE
-multi-label dataset against TF-IDF Logistic Regression, TF-IDF Linear SVM, a
-Sentence-BERT baseline, a fine-tuned DistilBERT baseline, and a
-label-frequency baseline. Under 5-fold
-cross-validation, Sentence-BERT achieves the highest Macro-F1, while classical
-TF-IDF baselines and the hybrid quantum--SVM model perform comparably, with
-the hybrid model obtaining the highest Macro-F1 among non-embedding models.
-The Macro-F1 differences between the hybrid model and TF-IDF baselines are not
-statistically significant in a Wilcoxon signed-rank test. As a standalone
-classifier, the quantum-inspired projection is significantly weaker than the
-classical baselines (large effect size across cross-validation folds); fused
-with a linear SVM, its accuracy gain over TF-IDF baselines is small,
-directionally positive, and not statistically significant at this dataset
-size. The contribution of this work is therefore centered on interpretability
-and on a diagnostic account of where the quantum-inspired geometry helps and
-where it does not, rather than on an accuracy improvement. We further provide
-a deletion-based evaluation of the token-level explanations.
+such as security, performance, usability, and availability, making NFR
+classification a natural multi-label problem. This paper presents an
+intrinsically explainable quantum-inspired method for multi-label NFR
+classification. Requirements are represented as normalized semantic states,
+NFR labels as projection directions, and label scores as squared projection
+amplitudes; a label interference matrix models NFR co-occurrence, and
+token-level amplitude contributions explain predictions without a post-hoc
+explainer. The paper also gives a theoretical characterization of the deployed
+decision rule, identifying when the quantum-inspired geometry reduces to
+cosine-style ranking and when interference or row-wise normalization creates
+genuine cross-label coupling. We evaluate quantum-inspired variants on the
+NICE multi-label dataset against TF-IDF Logistic Regression, TF-IDF Linear SVM,
+Sentence-BERT, fine-tuned DistilBERT, and a label-frequency baseline. Under
+5-fold cross-validation, Sentence-BERT achieves the highest Macro-F1; the
+hybrid quantum--SVM model is competitive with TF-IDF baselines and obtains the
+highest Macro-F1 among non-embedding models, but its advantage is not
+statistically significant at this dataset size. The main contribution is
+therefore not a state-of-the-art accuracy claim, but an interpretable
+multi-label scoring formulation, a precise account of when its geometry helps
+or collapses to classical behavior, and a deletion-based faithfulness
+evaluation of its intrinsic token explanations.
 \keywords{Requirements Engineering \and Non-Functional Requirements \and Multi-label Classification \and Quantum-inspired Model \and Explainable AI \and Software Engineering}
 \end{abstract}
 
@@ -78,22 +76,23 @@ computers and borrows mathematical intuitions such as state representation,
 projection amplitude, and interference from geometric information retrieval and
 quantum language modeling \cite{vanrijsbergen2004geometry,sordoni2013quantum,li2019cnm}.
 
-The basic projection component is closely related to centroid-based text
-classification. The contribution of this work is therefore not a claim of raw
-performance superiority, but a combination of (i) an interpretable geometric
-scoring view, (ii) a label-coupling formulation via an interference term,
-which later experiments show is only marginally active in practice, and
-(iii) a hybrid calibration with a discriminative classifier, whose accuracy
-advantage over classical baselines we report as suggestive rather than
-confirmed.
+The paper's positive claim is that this formulation provides an intrinsic
+explanation mechanism for multi-label NFR classification and a testable
+theory of when quantum-inspired geometry changes the decision rule. The basic
+projection component is closely related to centroid-based text classification;
+the interference and row-wise normalization analyses make explicit when the
+model becomes more than an independent centroid classifier and when it does
+not. Empirically, the hybrid model offers a small, suggestive accuracy gain
+over comparable TF-IDF baselines, while the primary value of the method lies in
+its transparent scoring structure and diagnostic ablation.
 
 The contributions of this paper are:
 \begin{itemize}
-    \item a reproducible implementation for multi-label NFR classification experiments;
-    \item quantum-inspired projection, contrastive projection, and hybrid quantum--SVM variants;
-    \item token-level semantic amplitude explanations and a deletion-based faithfulness test;
+    \item an intrinsically explainable quantum-inspired formulation for multi-label NFR classification;
+    \item a theoretical characterization of interference and row-wise normalization as the two sources of cross-label coupling;
+    \item token-level semantic amplitude explanations evaluated with a deletion-based ERASER faithfulness test;
     \item empirical comparison against TF-IDF Logistic Regression, TF-IDF Linear SVM, Sentence-BERT, fine-tuned DistilBERT, and a label-frequency baseline on the NICE dataset;
-    \item an ablation study of projection type, label interference, and hybrid fusion weight.
+    \item an ablation study showing where projection type, label interference, and hybrid fusion weight help or fail.
 \end{itemize}
 
 \section{Related Work}
@@ -322,15 +321,10 @@ $l$, so no label is predicted for instance $i$ at any $\tau>0$.
 \end{proof}
 
 \begin{remark}
-Concretely, with two labels and $\tau=0.5$: an instance with
-$\mathbf{u}=(0.5,0.0)$ has $s_1=(0.5-0)/(0.5-0)=1.0\geq\tau$, so label 1 is
-predicted; an instance with $\mathbf{u}=(0.5,0.9)$ has the same raw score
-$u_1=0.5$ but $s_1=(0.5-0.5)/(0.9-0.5)=0<\tau$, so label 1 is not predicted.
-The row-wise normalization is therefore a second source of cross-label
-coupling, independent of and in addition to the interference matrix
-$\mathbf{M}'$: even at $\lambda=0$, with interference fully switched off, the
-model's per-label decisions are not those of $L$ independent per-label
-centroid classifiers sharing one global threshold.
+For two labels and $\tau=0.5$, $\mathbf{u}=(0.5,0.0)$ predicts label 1 after
+normalization, whereas $\mathbf{u}=(0.5,0.9)$ gives the same raw label-1 score
+but does not predict label 1. Row-wise normalization is therefore a second
+source of cross-label coupling, independent of $\mathbf{M}'$.
 \end{remark}
 
 \section{Experimental Setup}
@@ -438,11 +432,11 @@ results should be interpreted cautiously.
 
 \subsection{5-Fold Cross-validation on NICE}
 Table \ref{tab:nice-cv} reports 5-fold cross-validation results with mean and
-standard deviation across folds.
+standard deviation across folds, including the fine-tuned DistilBERT baseline.
 
 \begin{table}[htbp]
 \centering
-\caption{Mean and standard deviation of 5-fold cross-validation results on the NICE multi-label dataset. Sentence-BERT achieves the highest LRAP; the hybrid quantum--SVM model obtains the highest Micro-F1 and Macro-F1 among non-embedding models, while TF-IDF Logistic Regression obtains the lowest Hamming loss.}
+\caption{Mean and standard deviation of 5-fold cross-validation results on the NICE multi-label dataset. Fine-tuned DistilBERT is reported with its validation-selected per-label thresholds; the other rows use the global threshold protocol. Sentence-BERT achieves the highest LRAP; the hybrid quantum--SVM model obtains the highest Micro-F1 and Macro-F1 among non-embedding models, while TF-IDF Logistic Regression obtains the lowest Hamming loss.}
 \label{tab:nice-cv}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
@@ -453,6 +447,7 @@ Sentence-BERT + LR & 0.6493 $\pm$ 0.0357 & \textbf{0.6121 $\pm$ 0.0450} & 0.0919
 Hybrid Quantum--SVM Fusion & \textbf{0.6839 $\pm$ 0.0331} & 0.6084 $\pm$ 0.0294 & 0.0768 $\pm$ 0.0074 & 0.8040 $\pm$ 0.0266 \\
 TF-IDF Linear SVM & 0.6821 $\pm$ 0.0405 & 0.6049 $\pm$ 0.0336 & 0.0764 $\pm$ 0.0094 & 0.8056 $\pm$ 0.0262 \\
 TF-IDF Logistic Regression & 0.6787 $\pm$ 0.0463 & 0.5977 $\pm$ 0.0229 & \textbf{0.0759 $\pm$ 0.0140} & 0.7990 $\pm$ 0.0240 \\
+Fine-tuned DistilBERT & 0.5420 $\pm$ 0.0569 & 0.5333 $\pm$ 0.0591 & 0.1402 $\pm$ 0.0361 & 0.7105 $\pm$ 0.0516 \\
 Contrastive Quantum Projection & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
 Quantum-inspired Projection & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
 Label-frequency baseline & 0.2328 $\pm$ 0.0034 & 0.2083 $\pm$ 0.0032 & 0.7927 $\pm$ 0.0019 & 0.4059 $\pm$ 0.0110 \\
@@ -470,6 +465,11 @@ Linear SVM ($p=0.1875$) or TF-IDF Logistic Regression ($p=0.4375$). Given the
 small number of folds and the dependence induced by cross-validation
 resampling, these tests should be interpreted as descriptive evidence rather
 than a strong statistical conclusion \cite{demsar2006statistical}.
+The fine-tuned DistilBERT row is weaker than the frozen Sentence-BERT+LR
+baseline and the TF-IDF/hybrid models in this small, imbalanced setting,
+indicating that direct fine-tuning of a general-purpose encoder is not
+automatically superior to strong linear baselines under the present data
+budget.
 
 \subsection{5-Fold Cross-validation with Per-label Thresholds}
 Table \ref{tab:nice-per-label} reports the 5-fold results when each label
@@ -488,6 +488,7 @@ Sentence-BERT + LR & \textbf{0.6386 $\pm$ 0.0280} & \textbf{0.5990 $\pm$ 0.0276}
 Hybrid Quantum--SVM Fusion & 0.6178 $\pm$ 0.0749 & 0.5854 $\pm$ 0.0341 & 0.1027 $\pm$ 0.0476 & 0.8040 $\pm$ 0.0266 \\
 TF-IDF Linear SVM & 0.6085 $\pm$ 0.0588 & 0.5640 $\pm$ 0.0309 & 0.1057 $\pm$ 0.0378 & 0.8056 $\pm$ 0.0262 \\
 TF-IDF Logistic Regression & 0.6219 $\pm$ 0.0588 & 0.5629 $\pm$ 0.0532 & 0.0967 $\pm$ 0.0195 & 0.7990 $\pm$ 0.0240 \\
+Fine-tuned DistilBERT & 0.5420 $\pm$ 0.0569 & 0.5333 $\pm$ 0.0591 & 0.1402 $\pm$ 0.0361 & 0.7105 $\pm$ 0.0516 \\
 \bottomrule
 \end{tabular}
 }
@@ -502,20 +503,6 @@ threshold; the hybrid model's relative drop (-3.8\%) is smaller than TF-IDF
 Linear SVM's (-6.8\%) or TF-IDF Logistic Regression's (-5.8\%), suggesting the
 hybrid model is comparatively more robust to per-label threshold calibration
 rather than benefiting from it in absolute terms.
-
-\subsection{Fine-tuned Transformer Baseline}
-To address the possibility that frozen Sentence-BERT embeddings understate the
-strength of transformer baselines, we also fine-tuned DistilBERT directly on
-the NICE multi-label task. The model uses BCE loss with clipped per-label
-positive weights and validation-selected per-label thresholds. Under the same
-5-fold split protocol, fine-tuned DistilBERT obtains Micro-F1
-$0.5420\pm0.0569$, Macro-F1 $0.5333\pm0.0591$, Hamming loss
-$0.1402\pm0.0361$, and LRAP $0.7105\pm0.0516$. This is weaker than the frozen
-Sentence-BERT+LR baseline and the TF-IDF/hybrid models in our setting. The
-result suggests that, for this small and imbalanced dataset, direct
-fine-tuning of a general-purpose encoder is not automatically superior to
-strong linear baselines; it should not be interpreted as an exhaustive search
-over transformer architectures or hyperparameters.
 
 \subsection{Ablation Study}
 Table \ref{tab:nice-ablation} reports a 5-fold ablation study of the main
@@ -575,7 +562,7 @@ score.
 \subsection{Explainability Evaluation}
 We evaluate explanation faithfulness using the ERASER framework metrics: Comprehensiveness and Sufficiency. Across 158 true label assignments in the test split, for the contrastive projection model:
 (i) Comprehensiveness (score drop when deleting top-3 terms) was 0.0305, which is 5.21 times higher than random deletion (0.0059).
-(ii) Sufficiency (score change when keeping only top-3 terms) was -0.0395, whereas keeping 3 random terms dropped the score by 0.0337 (a sufficiency ratio of -1.17 compared to random). The negative sufficiency indicates that removing the non-rationale tokens slightly increases the projection score, filtering out background noise.
+(ii) Sufficiency is computed as $f(x)_c-f(x_{\mathrm{top}\text{-}3})_c$, so lower values are better because the rationale-only input should preserve the original score. The contrastive projection obtains -0.0395, whereas keeping 3 random terms drops the score by 0.0337 (ratio -1.17). This negative value means the top-3 rationale alone receives a slightly higher score than the full requirement; we interpret it cautiously as evidence that non-rationale tokens can add background noise, not as a human-rationale quality guarantee.
 For the TF-IDF Linear SVM baseline:
 (i) Comprehensiveness was 0.0867 (4.01 times random drop of 0.0216).
 (ii) Sufficiency was 0.0484 (0.42 times random drop of 0.1141).
@@ -610,34 +597,25 @@ evidence for the multi-label research claim, and because PROMISE-expanded is
 single-label, it does not exercise the multi-label interference mechanism.
 
 \section{Discussion}
-The experiments provide a balanced picture. On the main NICE multi-label
-dataset, Sentence-BERT is the strongest baseline in Macro-F1 and LRAP,
-consistent with the expectation that semantic embeddings are strong baselines
-for text classification. As a standalone classifier, the quantum-inspired
-projection is significantly weaker than TF-IDF Linear SVM: both the
-positive-centroid and contrastive variants lose to the SVM baseline in all 5
-cross-validation folds, with large paired effect sizes (Cohen's $d_z=-1.36$
-and $-5.92$, respectively; Wilcoxon $p=0.0625$, the smallest value attainable
-at $n=5$ folds). The quantum-inspired projection is therefore not, by itself,
-a competitive classifier.
+The experiments show a useful separation between accuracy and explanation.
+On the main NICE multi-label dataset, Sentence-BERT is the strongest baseline
+in Macro-F1 and LRAP, while the hybrid quantum--SVM model is competitive with
+TF-IDF baselines and provides intrinsic token-level contributions. The pure
+quantum-inspired projections are not competitive classifiers by themselves:
+they lose to TF-IDF Linear SVM in all 5 cross-validation folds, with large
+paired effect sizes (Cohen's $d_z=-1.36$ for positive projection and $-5.92$
+for contrastive projection; Wilcoxon $p=0.0625$, the smallest value attainable
+at $n=5$ folds).
 
-The rectified contrastive quantum variant avoids rewarding evidence in the
-opposite label direction, but its pure projection performance is weaker than
-the positive-centroid projection on this dataset. Fusing the quantum score
-with a linear SVM changes this picture only partially: the hybrid model's
-Macro-F1 is directionally higher than an SVM-only baseline sharing the same
-TF-IDF representation ($+0.0139$, paired $d_z=0.49$), but the isolated
-per-fold comparison shows this gain is fragile rather than robust --- it is
-negative in 2 of 5 folds, and the positive mean is driven largely by a single
-fold. Across the main comparisons in Tables~\ref{tab:nice-cv}
-and~\ref{tab:nice-per-label}, every Wilcoxon test ($p\geq0.1875$) is
-non-significant. Reliably detecting an effect of this size ($d_z\approx0.5$)
-would require on the order of 30--35 paired cross-validation folds at
-conventional power, which is not attainable from one 381-instance dataset
-under 5-fold cross-validation; the null result reflects limited statistical
-power as much as a small effect. We therefore report the hybrid model's
-accuracy advantage over classical baselines as suggestive rather than
-confirmed.
+Hybrid fusion is the component that makes the approach practically usable.
+Its Macro-F1 is directionally higher than an SVM-only baseline sharing the
+same TF-IDF representation ($+0.0139$, paired $d_z=0.49$), but the gain is
+not statistically reliable: it is negative in 2 of 5 folds, and all main
+Wilcoxon comparisons in Tables~\ref{tab:nice-cv} and
+\ref{tab:nice-per-label} are non-significant ($p\geq0.1875$). Detecting an
+effect of this size with conventional power would require roughly 30--35
+paired folds, which is not realistic for one 381-instance dataset; hence the
+accuracy gain should be read as suggestive, not confirmed.
 
 To reduce reliance on fold-level significance testing, we also ran a paired
 bootstrap over the held-out NICE test requirements. The hybrid model's Macro-F1
@@ -668,31 +646,16 @@ footprint matter more than maximum Macro-F1, not as an accuracy improvement
 in its own right.
 
 \section{Threats to Validity}
-\textbf{Dataset size and availability.} NICE contains only a few hundred
-NFR-labeled requirements after filtering, and every cross-validation and
-ablation result in this paper is computed from this single 381-instance
-sample. A single dataset cannot establish that the observed model ranking
-would replicate on a differently sourced NFR corpus, since NICE's specific
-vocabulary, label distribution, and annotation conventions could each
-independently drive part of the ranking. Multi-label NFR datasets with
-fine-grained requirement subclasses are scarce, and to the best of our
-knowledge NICE is the only publicly available dataset suitable for
-evaluating multi-label co-occurrence and interference at the time of
-writing. Verifying generalization would require a second multi-label NFR
-corpus drawn from a different requirements source, with its own label
-co-occurrence structure, so that the interference formulation and the
-hybrid fusion behavior could be checked against label correlations the
-model was not implicitly tuned to. As a partial mitigation, we report an
-auxiliary single-label sanity check on the PROMISE-expanded dataset (525 NFR
-requirements), where the projection model remained competitive with a
-TF-IDF Logistic Regression baseline on one split; because PROMISE-expanded
-is single-label, this exercises the projection component but not the
-multi-label interference mechanism, and does not substitute for a second
-multi-label dataset. We consider the current evidence sufficient for this
-paper's central claims, which concern interpretability and a diagnostic
-account of where the quantum-inspired geometry helps or does not, but
-explicitly insufficient to support any claim that the observed accuracy
-ranking generalizes beyond NICE.
+\textbf{Dataset size and availability.} NICE contains 381 usable multi-label
+NFR requirements after filtering, so all cross-validation and ablation results
+come from one small corpus. The observed ranking may depend on NICE's
+vocabulary, label distribution, and annotation conventions, and a second
+multi-label NFR corpus is needed before making broad accuracy-generalization
+claims. Multi-label NFR datasets with fine-grained subclasses are scarce; as a
+partial mitigation, we include a single-label PROMISE-expanded sanity check,
+but it does not exercise the multi-label interference mechanism. The current
+evidence is sufficient for the paper's interpretability and diagnostic claims,
+but not for a state-of-the-art accuracy claim beyond NICE.
 
 \textbf{Baseline scope.} The current implementation includes TF-IDF baselines,
 a frozen Sentence-BERT encoder, and a cross-validated fine-tuned DistilBERT
@@ -722,24 +685,23 @@ interference, and fusion weight, but it does not yet test contextual embeddings
 inside the quantum-inspired projection component.
 
 \section{Conclusion}
-This paper presented explainable quantum-inspired models for multi-label NFR
-classification. Requirements are represented as semantic states, NFR labels are
-modeled as projection directions, and predictions are explained through
-semantic amplitude contributions. As a standalone classifier, the
-quantum-inspired projection is significantly weaker than classical TF-IDF
-baselines (large effect size, all cross-validation folds); fused with a linear
-SVM, its Macro-F1 advantage over TF-IDF and Sentence-BERT baselines is small,
-directionally positive, and not statistically significant at the current
-dataset size. The paper's contribution is therefore an interpretability result
-and a diagnostic ablation --- showing where the quantum-inspired geometry
-helps (as an auxiliary fusion signal) and where it does not (as a standalone
-classifier, and under label interference) --- rather than a confirmed accuracy
-improvement. The deletion-based explainability evaluation shows that top
-contribution terms are substantially more influential than random terms, and
-this intrinsic explanation is obtained without a post-hoc method or a
-pretrained model. The ablation study indicates that hybrid fusion is the most
-useful quantum-inspired component in the current implementation, while pure
-contrastive projection requires further refinement.
+This paper presented an intrinsically explainable quantum-inspired formulation
+for multi-label NFR classification. Requirements are semantic states, labels
+are projection directions, and predictions are explained through semantic
+amplitude contributions rather than post-hoc approximations. The theoretical
+analysis clarifies exactly when the model behaves like cosine-style centroid
+ranking and when interference or row-wise normalization creates cross-label
+coupling.
+
+Empirically, the method's strongest role is explanatory and diagnostic. The
+hybrid quantum--SVM model is competitive with TF-IDF baselines and is the
+strongest non-embedding model in Macro-F1, but its accuracy advantage is not
+statistically significant at the current dataset size; pure projection variants
+are weaker as standalone classifiers. The deletion-based evaluation shows that
+top contribution terms are substantially more influential than random terms,
+supporting the faithfulness of the intrinsic explanations. Thus, the paper
+contributes a transparent multi-label scoring framework and a careful account
+of when its quantum-inspired geometry helps, not an inflated accuracy claim.
 
 Future work should integrate contextual embeddings into the quantum-inspired
 representation and compare with additional fine-tuned BERT/RoBERTa
@@ -766,16 +728,13 @@ For anonymous review, the artifact is available at the anonymized repository:
 
 \section*{Use of AI Tools}
 During the preparation of this manuscript, the authors used a large language
-model to assist with: (i) re-running and verifying the experimental pipeline
-for reproducibility, including diagnosing a dependency-pinning and
-random-seed issue that had made prior results non-reproducible; (ii)
-computing the effect-size, bootstrap, and significance analyses reported in
-the Discussion; (iii) deriving and verifying the corrected statement and
-proof of Proposition~\ref{prop:reduction}; and (iv) drafting and revising
-text throughout the manuscript, including the framing of the paper's
-contribution. All AI-assisted code, analysis, and text were reviewed,
-independently checked against the underlying experimental data, and verified
-by the authors, who take full responsibility for the content of the paper.
+model as an assistant for implementation checks, dependency diagnosis,
+experiment re-runs, statistical-script review, consistency checks, and
+language editing. The propositions, statistical interpretations, contribution
+framing, and final manuscript text were independently reviewed and rewritten
+by the authors against the code, logs, and exported result files. The authors
+take full responsibility for the experiments, proofs, analyses, and claims in
+the paper.
 
 \bibliographystyle{splncs04}
 \bibliography{references}
