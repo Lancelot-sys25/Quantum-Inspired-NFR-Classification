@@ -43,12 +43,13 @@ It produced Macro-F1 `0.5333 ± 0.0591` in
 ## Verified Manuscript Build
 
 `paper/main.tex` was rebuilt successfully with Tectonic and the required
-`lmodern` plus `microtype` packages. The generated `paper/main.pdf` has 16
+`lmodern` plus `microtype` packages. The generated `paper/main.pdf` has 15
 pages total. Text extraction confirms:
 
 - page 1 contains `Anonymous Author(s)`;
-- `Conclusion` begins on page 14;
-- `Reproducibility`, `Use of AI Tools`, and `References` begin on page 15.
+- `Conclusion`, `Reproducibility`, `Use of AI Tools`, and `References` begin
+  on page 14;
+- references continue and finish on page 15.
 
 Under the supervisor's counting rule (body excluding references and disclosure
 sections), the body is 14 pages.

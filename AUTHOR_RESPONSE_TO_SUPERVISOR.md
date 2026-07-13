@@ -126,7 +126,7 @@ This repository cannot submit the paper on the authors' behalf. At submission ti
 
 **Compilation status:** Successful. Compiled end-to-end with Tectonic 0.16.9; the build completed with BibTeX and produced `paper/main.pdf`. Zero undefined citations or references remained after the final pass. Remaining warnings are minor overfull/underfull boxes and the known `amsmath: Unable to redefine math accent \vec` warning, with no content impact.
 
-**Page count:** 17 pages total after adding the fine-tuned DistilBERT baseline. Per-page text extraction (via `pypdf`) shows `Conclusion` begins on page 14, `Reproducibility` and `Use of AI Tools` begin on page 15, and `References` begin on page 16. Body (Introduction through Conclusion, excluding references and disclosure sections, per the supervisor's counting rule) is therefore **approximately 14 pages** — within the requested 12–15 page body range.
+**Page count:** 15 pages total after compacting the latest revision. Per-page text extraction (via `pypdf`) shows `Conclusion`, `Reproducibility`, `Use of AI Tools`, and the beginning of `References` on page 14, with references finishing on page 15. Body (Introduction through Conclusion, excluding references and disclosure sections, per the supervisor's counting rule) is therefore **at most 14 pages**, and the full PDF is now also within 15 pages.
 
 **Track/Scope:** Not verifiable from the repository — selecting the correct track and Scope on Confy+ is a Confy+ web-form action the authors must perform manually; no file in this repository records or determines it.
 

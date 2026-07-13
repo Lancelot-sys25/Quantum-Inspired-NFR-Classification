@@ -96,41 +96,25 @@ The contributions of this paper are:
 \end{itemize}
 
 \section{Related Work}
-Automated NFR classification has been studied for many years in Requirements
-Engineering. Early work by Cleland-Huang et al. explored automated
-classification of NFRs such as security, performance, and usability
-\cite{clelandhuang2007automated}. Later studies introduced supervised machine
-learning and dependency-based explanations for requirements classification
-\cite{kurtanovic2017automatically,dalpiaz2019requirements}. The PROMISE and
-PROMISE-expanded datasets have supported repeatable experiments on requirement
-classification \cite{mitrevski_promise_exp}.
+Automated NFR classification includes early rule and supervised-learning work
+on security, performance, usability, and related quality attributes
+\cite{clelandhuang2007automated,kurtanovic2017automatically,dalpiaz2019requirements}.
+PROMISE and PROMISE-expanded support repeatable NFR experiments
+\cite{mitrevski_promise_exp}, while NICE provides the multi-label NFR setting
+used here \cite{nice_dataset,nice_preprint}. Because label filtering, splits,
+and metrics differ from the NICE paper, we report all baselines on the same
+downloaded data.
 
-NICE introduced a multi-label NFR dataset based on the augmented PROMISE dataset
-and relabeled NFR sub-classes such as availability, security, and performance
-using a multi-label schema \cite{nice_dataset,nice_preprint}. This dataset is
-especially relevant to the present work because the research problem is
-explicitly multi-label. A direct numeric comparison with the NICE paper is
-limited by differences in label filtering, splits, and evaluation protocol, so
-we report our own baselines on the same downloaded data.
-
-Traditional text classification commonly relies on bag-of-words or TF-IDF
-features combined with classifiers such as Logistic Regression or Support Vector
-Machines \cite{sebastiani2002machine}. Transformer-based models have become
-strong baselines for requirements classification, including BERT-style transfer
-learning approaches such as NoRBERT \cite{devlin2019bert,hey2020norbert}.
-Sentence-BERT provides efficient sentence embeddings for downstream classifiers
-\cite{reimers2019sentencebert}, and is therefore included as a stronger
-embedding baseline in this study.
-
-The quantum-inspired component is related to geometric information retrieval and
-quantum-inspired language models, where term dependencies and matching can be
-modeled through vector spaces, projections, and complex-valued or
-wave-function-inspired representations
+Our baselines cover TF-IDF classifiers, which remain strong in small text
+datasets \cite{sebastiani2002machine}, and transformer-based representations,
+including BERT-style transfer learning, NoRBERT, and Sentence-BERT
+\cite{devlin2019bert,hey2020norbert,reimers2019sentencebert}. The
+quantum-inspired component follows geometric information retrieval and
+quantum-inspired language modeling, where matching is expressed through vector
+spaces, projections, and wave-function-inspired representations
 \cite{vanrijsbergen2004geometry,sordoni2013quantum,zhang2018quantum,li2019cnm}.
-For explainability, this work is positioned near model explanation methods such
-as LIME and SHAP \cite{ribeiro2016lime,lundberg2017shap}, and evaluates
-faithfulness using a deletion test inspired by rationale evaluation work such
-as ERASER \cite{deyoung2020eraser}.
+For explainability, we relate to LIME, SHAP, and ERASER-style rationale
+evaluation \cite{ribeiro2016lime,lundberg2017shap,deyoung2020eraser}.
 
 \section{Research Questions}
 This study is guided by three research questions:
@@ -703,38 +687,24 @@ supporting the faithfulness of the intrinsic explanations. Thus, the paper
 contributes a transparent multi-label scoring framework and a careful account
 of when its quantum-inspired geometry helps, not an inflated accuracy claim.
 
-Future work should integrate contextual embeddings into the quantum-inspired
-representation and compare with additional fine-tuned BERT/RoBERTa
-\cite{liu2019roberta} and NoRBERT baselines under broader tuning budgets. It
-should also evaluate ML-kNN \cite{zhang2007mlknn} as a classical multi-label
-baseline, test the approach on a second multi-label NFR corpus, and collect
-human rationale judgments for explanation quality.
+Future work should integrate contextual embeddings, compare with broader
+BERT/RoBERTa \cite{liu2019roberta}, NoRBERT, and ML-kNN
+\cite{zhang2007mlknn} baselines, test a second multi-label NFR corpus, and
+collect human rationale judgments.
 
 \section*{Reproducibility}
-The implementation contains scripts for reproducing the experiments:
-\begin{itemize}
-    \item \texttt{scripts/run\_nice\_multilabel\_experiment.py}
-    \item \texttt{scripts/run\_nice\_cv\_experiment.py}
-    \item \texttt{scripts/run\_nice\_per\_label\_threshold\_experiment.py}
-    \item \texttt{scripts/run\_nice\_ablation\_experiment.py}
-    \item \texttt{scripts/run\_explainability\_deletion\_test.py}
-    \item \texttt{scripts/run\_nice\_robustness\_experiment.py}
-    \item \texttt{scripts/run\_nice\_finetuned\_transformer\_experiment.py}
-    \item \texttt{scripts/run\_all\_experiments.py}
-    \item \texttt{scripts/run\_promise\_experiment.py}
-\end{itemize}
-For anonymous review, the artifact is available at the anonymized repository:
-\url{https://anonymous.4open.science/r/nfr-review-artifact-CE2D/}.
+The artifact includes all scripts, data-processing code, reports, and pinned
+dependencies needed to reproduce the experiments, including an aggregate
+runner script. For anonymous review, it is
+available through the \href{https://anonymous.4open.science/r/nfr-review-artifact-CE2D/}{anonymous artifact repository}.
 
 \section*{Use of AI Tools}
-During the preparation of this manuscript, the authors used a large language
-model as an assistant for implementation checks, dependency diagnosis,
-experiment re-runs, statistical-script review, consistency checks, and
-language editing. The propositions, statistical interpretations, contribution
-framing, and final manuscript text were independently reviewed and rewritten
-by the authors against the code, logs, and exported result files. The authors
-take full responsibility for the experiments, proofs, analyses, and claims in
-the paper.
+The authors used a large language model to assist with implementation checks,
+dependency diagnosis, experiment re-runs, statistical-script review,
+consistency checks, and language editing. The authors independently reviewed
+and rewrote the propositions, statistical interpretations, contribution
+framing, and final text against the code, logs, and exported results, and take
+full responsibility for the paper.
 
 \bibliographystyle{splncs04}
 \bibliography{references}

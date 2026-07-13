@@ -5,23 +5,25 @@ Date checked: 2026-07-13
 ## 1. Page Limit
 
 `paper/main.tex` was rebuilt with `lmodern` and `microtype` using Tectonic.
-The generated `paper/main.pdf` has 16 pages total.
+The generated `paper/main.pdf` has 15 pages total.
 
 PDF text extraction shows:
 
 - pages 1-14: manuscript body through `Conclusion`;
-- page 15: `Reproducibility`, `Use of AI Tools`, and beginning of references;
-- page 16: remaining references.
+- page 14: `Reproducibility`, `Use of AI Tools`, and beginning of references;
+- page 15: remaining references.
 
 Under the requested counting rule, excluding references and `Use of AI Tools`,
-the body is 14 pages. The body is therefore below the 15-page full-paper limit.
+the body is at most 14 pages. The total PDF is now also within 15 pages.
 
 Cuts made:
 
 - compressed the long `Dataset size and availability` threat;
 - shortened the Proposition 2 remark;
 - removed repeated caveat wording from `Discussion`;
-- folded the separate DistilBERT subsection into the result-table discussion.
+- folded the separate DistilBERT subsection into the result-table discussion;
+- compacted `Related Work`, `Future Work`, `Reproducibility`, and `Use of AI
+  Tools` so the full PDF is 15 pages, not 16.
 
 ## 2. Positive Contribution Framing
 
