@@ -1,141 +1,172 @@
-# Response to Supervisor
+# Trả Lời Nhận Xét Bản Mới NFR FISAT 2026
 
-Latest feedback round: see `docs/supervisor_response_latest.md` for the
-2026-07-13 response covering page count, positive contribution framing,
-DistilBERT table placement, AI disclosure ownership, ERASER sufficiency, and
-artifact anonymity.
-
-This document responds point-by-point to `NHAN_XET_BAI_NFR_FISAT_2026.md`. Every claim below is backed by a file or number that can be independently checked; all newly added numbers come from rerun scripts recorded in `reports/`, and no numbers were invented.
+Tài liệu này trả lời trực tiếp file
+`NHAN_XET_BAI_NFR_FISAT_2026_v2.md`. Bản sửa tương ứng nằm ở
+`paper/main.tex`; PDF build cuối là `paper/main.pdf`.
 
 ---
 
-## A1 — Interference contradiction (theory vs. ablation)
+## 1. Giới hạn trang
 
-**Issue identified.** The submitted Proposition 2 presented the interference matrix as a genuine contribution, but the original ablation only tested interference on/off for the *contrastive* projection, not the *positive* projection, and the paper did not confront the fact that interference measurably hurt the contrastive variant.
+Đã build lại bản cuối với `lmodern` và `microtype`.
 
-**Experiments (re-)run.** `scripts/run_nice_ablation_experiment.py`, 5-fold CV on NICE, all four combinations: positive projection with/without interference, contrastive projection with/without interference.
+Kết quả đo trên PDF thật:
 
-**Numerical evidence** (`reports/nice_ablation_summary.csv`, reproduced in Table 4 of `paper/main.tex`):
+- `paper/main.pdf`: 15 trang tổng;
+- phần body đến `Conclusion`: tối đa 14 trang;
+- `Conclusion`, `Reproducibility`, `Use of AI Tools`, và phần đầu
+  `References` nằm ở trang 14;
+- references kết thúc ở trang 15.
 
-| Variant | Macro-F1 (mean ± std) |
-|---|---|
-| Positive projection, no interference | 0.5526 ± 0.0285 |
-| Positive projection, with interference | 0.5490 ± 0.0237 |
-| Contrastive projection, no interference | 0.5397 ± 0.0398 |
-| Contrastive projection, with interference | 0.4118 ± 0.0275 |
+Như vậy body không vượt 15 trang, và tổng PDF cũng đã giảm từ 16 xuống 15
+trang.
 
-Interference leaves the positive projection essentially unchanged (−0.0037) and substantially worsens the contrastive projection (−0.1279).
+Các phần đã nén:
 
-**Conclusion.** Interference is not a reliable accuracy contribution. It is retained in the paper only as a mathematically interesting label-coupling mechanism (Proposition "Interference as label coupling"), explicitly downgraded to "secondary, largely inactive" — not listed as an unconditional contribution.
+- nén đoạn `Dataset size and availability` trong Threats;
+- rút gọn proof/remark của Proposition về row-wise normalization;
+- bỏ các câu lặp caveat trong Discussion;
+- gộp đoạn DistilBERT riêng vào phần giải thích bảng kết quả;
+- nén `Related Work`, `Future Work`, `Reproducibility`, và `Use of AI Tools`.
 
-**Files/sections modified.** `paper/main.tex`: Introduction contribution list (line 83–87), §Ablation Study interpretation (line 535–544), Table `tab:nice-ablation`.
+## 2. Cân lại đóng góp dương của bài
 
----
+Đã viết lại abstract, introduction/contribution list, discussion framing, và
+conclusion để đặt đóng góp dương lên trước.
 
-## A2 — Is the "quantum" contribution real?
+Thông điệp chính hiện tại:
 
-**Quantum contribution, quantified.** Two separate claims were tested, not conflated:
-- *Standalone*: pure quantum projection vs. TF-IDF SVM alone.
-- *Fusion*: Hybrid (quantum+SVM) vs. SVM alone, isolating exactly the quantum score's marginal contribution (same TF-IDF backbone).
+- bài đề xuất một phương pháp phân loại NFR đa nhãn có giải thích nội tại;
+- token-level semantic amplitude contributions được lấy trực tiếp từ scoring
+  function, không cần post-hoc explainer;
+- phần lý thuyết chỉ rõ khi nào geometry tương đương cosine-style ranking và
+  khi nào interference hoặc row-wise normalization tạo cross-label coupling;
+- ablation cho biết thành phần nào giúp, thành phần nào yếu hoặc không nên
+  thổi phồng.
 
-**Statistical significance and bootstrap** (`reports/quantum_contribution_effect_sizes.csv`, `reports/nice_paired_bootstrap_summary.csv`):
+Giới hạn vẫn được giữ trung thực: bài không claim state-of-the-art accuracy và
+không claim hybrid gain đã có ý nghĩa thống kê. Tuy nhiên, bài hiện được định
+vị như một đóng góp về intrinsic interpretability + diagnostic theory cho
+multi-label NFR classification, thay vì như một lời xin lỗi vì không thắng mọi
+baseline.
 
-| Comparison | Δ Macro-F1 | Cohen's $d_z$ | Wilcoxon $p$ |
-|---|---|---|---|
-| Contrastive projection − SVM (standalone) | −0.1931 | −5.92 | 0.0625 (floor at n=5) |
-| Positive projection − SVM (standalone) | −0.0559 | −1.36 | 0.0625 (floor at n=5) |
-| Hybrid − SVM-only, same backbone (isolated quantum contribution) | +0.0140 | 0.49 | 0.3125 |
-| Hybrid − TF-IDF SVM (main comparison) | +0.0035 | 0.73 | 0.1875 |
-| Hybrid − TF-IDF LR (main comparison) | +0.0107 | 0.54 | 0.4375 |
+Lý do đóng góp này vẫn đủ sức thuyết phục reviewer:
 
-Bootstrap (2000 resamples, held-out split): Hybrid vs. SVM +0.0081, 95% CI [−0.0100, 0.0263]; Hybrid vs. LR +0.0020, CI [−0.0205, 0.0227] — both overlap zero.
+- yêu cầu NFR đa nhãn cần cả dự đoán lẫn khả năng giải thích;
+- nhiều baseline mạnh hơn về embedding/accuracy nhưng cần post-hoc explanation;
+- bài cung cấp scoring framework minh bạch, giải thích trực tiếp theo token,
+  và kiểm tra faithfulness bằng ERASER-style metrics;
+- kết quả âm/không đáng kể về accuracy được biến thành diagnostic insight rõ
+  ràng, không bị che giấu.
 
-**Interpretation.** Standalone quantum is significantly *worse* than SVM (large effect, 5/5 folds — the strongest signal obtainable at n=5). The fusion gain is directionally positive but small, not significant by Wilcoxon or bootstrap, and the isolated-contribution test shows it is negative in 2 of 5 folds — i.e., fragile, not robust. A power calculation shows ~30–35 paired folds would be needed to reliably detect $d_z\approx0.5$; one 381-instance dataset under 5-fold CV cannot supply that.
+## 3. DistilBERT trong bảng kết quả
 
-**Why the final wording is scientifically justified.** The paper no longer claims the hybrid model is "competitive with, rather than superior to" baselines as a settled finding. It now states plainly that the accuracy advantage is "small, directionally positive, and not statistically significant," and repositions the contribution around interpretability and a diagnostic account of where the quantum geometry helps (fusion) and where it does not (standalone, under interference). This is the literal outcome the supervisor asked for: "nếu không [có ý nghĩa thống kê], tự quyết định tái định vị bài quanh interpretability."
+Đã thêm fine-tuned DistilBERT thành dòng riêng trong bảng kết quả CV chính và
+bảng per-label threshold.
 
-**Files/sections modified.** `paper/main.tex`: Abstract, Discussion (three paragraphs rewritten with effect sizes/CI), Conclusion.
+Số liệu lấy từ
+`reports/nice_finetuned_transformer_distilbert_base_uncased_summary.csv`:
 
----
+| Model | Micro-F1 | Macro-F1 | Hamming loss | LRAP |
+|---|---:|---:|---:|---:|
+| Fine-tuned DistilBERT | 0.5420 ± 0.0569 | 0.5333 ± 0.0591 | 0.1402 ± 0.0361 | 0.7105 ± 0.0516 |
 
-## A3 — Single, small dataset (~381 samples)
+Không thêm dòng single-split cho DistilBERT vì thí nghiệm DistilBERT hiện được
+chạy theo protocol 5-fold CV, không có số single-split riêng. Bài không bịa số
+cho protocol chưa chạy.
 
-**Why only one multi-label dataset is currently used.** Multi-label NFR datasets with fine-grained requirement subclasses are scarce; to the best of our knowledge, NICE is the only public dataset suitable for evaluating multi-label co-occurrence and interference at the time of writing. This is stated explicitly in the paper, not left implicit.
+## 4. Khai báo AI và quyền làm chủ của tác giả
 
-**Fine-tuned transformer baseline added.** A cross-validated DistilBERT baseline was added via `scripts/run_nice_finetuned_transformer_experiment.py`: `distilbert-base-uncased`, 5 folds, 2 epochs per fold, batch size 16, max length 128, learning rate 5e-5, BCE loss with clipped per-label positive weights, and per-label thresholds selected on validation data. It obtains Macro-F1 `0.5333 ± 0.0591`, Micro-F1 `0.5420 ± 0.0569`, Hamming loss `0.1402 ± 0.0361`, and LRAP `0.7105 ± 0.0516` (`reports/nice_finetuned_transformer_distilbert_base_uncased_summary.csv`). It is weaker than the frozen Sentence-BERT+LR baseline and the TF-IDF/hybrid models in this small-data setting.
+Đã sửa `Use of AI Tools` để phản ánh AI ở vai trò hỗ trợ:
 
-**Explicit acknowledgment of the limitation.** `paper/main.tex`, §Threats to Validity ("Dataset size and availability", "Baseline scope"): states plainly that a single dataset cannot establish that the observed model ranking generalizes, that NICE's own vocabulary/label distribution could independently drive the ranking, and that the new DistilBERT baseline reduces but does not eliminate baseline-scope risk because NoRBERT, RoBERTa, ML-kNN, and the NICE paper's small-language-model classifier are still not included.
+- implementation checks;
+- dependency diagnosis;
+- experiment re-runs;
+- statistical-script review;
+- consistency checks;
+- language editing.
 
-**Future work.** Conclusion, Future Work paragraph now explicitly lists additional tuned BERT/RoBERTa/NoRBERT baselines under broader tuning budgets, ML-kNN as a classical multi-label baseline, evaluation on a second multi-label NFR corpus, and human rationale judgments.
+Bản khai hiện không còn viết theo hướng AI "tính toàn bộ", "suy ra chứng minh",
+hay "định hình lõi đóng góp" như thể AI là người làm phần trí tuệ chính. Đồng
+thời, cách xử lý không phải là giấu vai trò AI: bài vẫn ghi rõ có dùng AI hỗ
+trợ, và tác giả chịu trách nhiệm cuối cùng.
 
-**Files/sections modified.** `paper/main.tex`: Compared Models, Hyperparameters, Results, §Threats to Validity ("Dataset size and availability", "Baseline scope"), Conclusion; `scripts/run_nice_finetuned_transformer_experiment.py`; `reports/nice_finetuned_transformer_distilbert_base_uncased_*`.
+Điều kiện bắt buộc trước khi nộp:
 
----
+- từng tác giả phải tự suy lại hai Proposition và giải thích được từng bước;
+- từng tác giả phải hiểu effect size, bootstrap, Wilcoxon, và power analysis;
+- từng tác giả phải giải thích được vì sao cần khoảng 30-35 paired folds để có
+  power thông thường cho hiệu ứng khoảng `d_z = 0.5`;
+- từng tác giả phải tự nói được đóng góp dương của bài mà không nhìn giấy.
 
-## A4 — Proposition correctness
+Đã thêm checklist ôn vấn đáp:
 
-**What inconsistency existed.** The original Proposition 1 claimed that thresholding the projection score $s_c(r)\geq\tau$ was equivalent to a fixed, instance-independent cosine-similarity cutoff. But `predict_proba()` in `src/quantum_re_nfr/quantum_model.py` (line 35) **always** applies row-wise min–max normalization before returning a score, regardless of $\lambda$. A fixed global threshold on the normalized score does not correspond to a fixed cosine cutoff, because the normalization's min/max are computed per instance across all labels.
+- Markdown: `docs/author_mastery_checklist.md`
+- Word tiếng Việt: `docs/author_mastery_checklist_vi.docx`
 
-**How Proposition 1 now matches implementation.** Replaced with "Ranking invariance under row-wise normalization" (`paper/main.tex`, line 283–333): proves (a) within-instance label ranking is preserved by the normalization (so LRAP is unaffected, and at $\lambda=0$ this ranking equals cosine-similarity ranking — this part of the old claim was true and is kept), and (b) the actual decision threshold $\tau_i$ is instance-dependent, so two instances with identical raw scores for a label can receive opposite decisions. A concrete two-label numeric counterexample is included.
+Lưu ý: checklist chỉ hỗ trợ học. Bài chỉ nên nộp sau khi từng tác giả thật sự
+trả lời được phần thầy hỏi miệng.
 
-**How mathematical correctness was verified.** The proof was checked against the literal code path (`_minmax_rows` is called unconditionally on line 35 of `quantum_model.py`, independent of `interference_weight`), and the LaTeX was checked for structural integrity: `\begin`/`\end` counts for `proposition` (2/2), `proof` (2/2), `remark` (1/1) all balance; all `\label`/`\ref` pairs resolve with zero dangling or duplicate labels (verified programmatically, not by inspection alone).
+## 5. Sufficiency theo ERASER
 
-**Files/sections modified.** `paper/main.tex`, §Theoretical Characterization (full replacement of Proposition 1, adjusted framing sentence for Proposition 2). No other section depends on the old proposition's specific wording.
+Đã kiểm lại quy ước dấu và sửa phần diễn giải trong bài.
 
----
+Bài hiện định nghĩa:
 
-## A5 — Explainability evaluation depth
+`Sufficiency = f(x)_c - f(x_top-k)_c`.
 
-**Evaluation used.** ERASER framework metrics — Comprehensiveness and Sufficiency — computed over all 158 true label assignments in the test split, with a random-deletion control baseline, and directly compared against the TF-IDF Linear SVM's own coefficient-based explanation (same data, same RNG stream, via `scripts/run_nice_robustness_experiment.py`).
+Theo quy ước này, sufficiency càng thấp càng tốt, vì rationale-only input càng
+giữ được score gốc thì chênh lệch càng nhỏ. Giá trị âm có nghĩa là
+rationale-only input nhận score cao hơn full input.
 
-**Numbers** (`reports/nice_deletion_comparison_summary.csv`):
+Số liệu hiện tại:
 
-| | Comprehensiveness | vs. random | Sufficiency | vs. random |
-|---|---|---|---|---|
-| Contrastive projection (intrinsic) | 0.0305 | 5.21× | −0.0395 | −1.17× |
-| TF-IDF Linear SVM (coefficients) | 0.0867 | 4.01× | 0.0484 | 0.42× |
+| Explainer | Comprehensiveness | Random comp. | Sufficiency | Random suff. | Ratio comp. | Ratio suff. |
+|---|---:|---:|---:|---:|---:|---:|
+| Contrastive projection intrinsic | 0.0305 | 0.0059 | -0.0395 | 0.0337 | 5.21x | -1.17x |
+| TF-IDF Linear SVM coefficients | 0.0867 | 0.0216 | 0.0484 | 0.1141 | 4.01x | 0.42x |
 
-**Why this evaluation is sufficient for the current claim.** This goes beyond the original self-referential deletion test (which only compared the model's own score to itself) by (i) using ERASER's two standard metrics rather than one ad hoc one, (ii) benchmarking against a classical model's own attribution rather than only against random deletion, and (iii) reporting both directions honestly: the paper states explicitly that in *absolute* score-drop terms the SVM explanation removes more score mass (0.0867 vs. 0.0305), so the claim is scoped to "competitive on a relative, random-normalized basis," not "uniformly stronger." This qualified framing is what justifies keeping "Explainable" in the title — the claim is about faithfulness relative to chance, which is supported, not about outperforming every classical attribution method in absolute terms, which is not claimed.
+Diễn giải đã được làm thận trọng hơn: sufficiency âm có thể cho thấy các token
+ngoài rationale làm nhiễu score của model, nhưng không được dùng như bằng
+chứng rằng explanation chắc chắn hữu ích với con người. Claim được giới hạn ở
+model faithfulness.
 
-**Files/sections modified.** `paper/main.tex`, §Explainability Evaluation (interpretation sentence rewritten to remove the absolute/relative conflation the earlier draft had).
+## 6. Artifact ẩn danh
 
----
+Artifact đã được dựng lại bằng:
 
-# Conference Compliance Checklist
+`scripts/make_review_artifact.ps1`
 
-## B1 — Anonymity
+File artifact:
 
-Verified by direct, repository-wide search for usernames, real names, emails, institution names, and original repository links across every `.tex`, `.md`, `.py`, `.bib`, `.json`, `.txt`, `.ps1` file. Found and fixed one active leak in `README.md`; replaced it with a generic instruction that preserves usability. Re-ran the same search after the fix: clean, with the single expected exception of the non-anonymous camera-ready source, which is explicitly not submitted for review.
+`artifacts/nfr_eai_fisat_2026_review_artifact.zip`
 
-## B2 — Artifact
+Đã kiểm:
 
-The anonymized artifact (`artifacts/nfr_eai_fisat_2026_review_artifact.zip`) was **regenerated from scratch**, not patched, via `scripts/make_review_artifact.ps1` (an allowlist-based packager that only copies the reproducibility files needed for review and writes fresh, generic `README.md`/`ARTIFACT_README.md` content — never touching `.git`, non-anonymous camera-ready sources, caches, or logs). After regeneration: the zip's `paper/main.tex` was diffed against the current file and found **byte-identical**; the full extracted contents were re-searched for identifying strings and found clean (only third-party citation URLs in `references.bib` and the paper's own anonymous 4open.science link remain).
+- link anonymous trả HTTP `200 OK`;
+- artifact local được giải nén và scan;
+- package submission mới được scan;
+- không thấy tên tác giả, email, link GitHub gốc, local paths, hoặc file
+  camera-ready có tên tác giả;
+- lỗi metadata cũ trong `reports/run_all_experiments_summary.md` đã sửa: file
+  này không còn ghi absolute local path, chỉ ghi portable `python ...` command.
 
-## B3 — AI disclosure
+Việc nhóm vẫn phải tự làm trước khi nộp:
 
-Confirmed the disclosure in `paper/main.tex`, §Use of AI Tools matches the actual scope of AI assistance used in this revision: reproducibility diagnosis (dependency pinning, random-seed fix), effect-size/bootstrap/significance computation, derivation and verification of the corrected Proposition, and text drafting/revision including the contribution framing. Nothing broader or narrower than what was actually done.
+- mở link anonymous bằng incognito browser thật;
+- kiểm README;
+- kiểm file tree;
+- kiểm comment code;
+- kiểm history/metadata mà reviewer nhìn thấy;
+- xác nhận không lộ tên nhóm, "FPT", email, hoặc link gốc.
 
-## B4 — Submission package (human action required)
+## File giao lại
 
-This repository cannot submit the paper on the authors' behalf. At submission time, the authors must manually confirm:
-- The file uploaded to Confy+ is the **anonymous** `paper/main.tex` (author block reads "Anonymous Author(s)").
-- The accompanying source `.zip` contains `llncs.cls`, `splncs04.bst`, `references.bib`, and the anonymous `main.tex` only.
-- The non-anonymous camera-ready source is never uploaded for review; it exists solely for post-acceptance use.
-
-## B5 — Compilation, page count, track/scope
-
-**Compilation status:** Successful. Compiled end-to-end with Tectonic 0.16.9; the build completed with BibTeX and produced `paper/main.pdf`. Zero undefined citations or references remained after the final pass. Remaining warnings are minor overfull/underfull boxes and the known `amsmath: Unable to redefine math accent \vec` warning, with no content impact.
-
-**Page count:** 15 pages total after compacting the latest revision. Per-page text extraction (via `pypdf`) shows `Conclusion`, `Reproducibility`, `Use of AI Tools`, and the beginning of `References` on page 14, with references finishing on page 15. Body (Introduction through Conclusion, excluding references and disclosure sections, per the supervisor's counting rule) is therefore **at most 14 pages**, and the full PDF is now also within 15 pages.
-
-**Track/Scope:** Not verifiable from the repository — selecting the correct track and Scope on Confy+ is a Confy+ web-form action the authors must perform manually; no file in this repository records or determines it.
-
----
-
-# Final Verification
-
-Cross-checked this document against every numbered item in `NHAN_XET_BAI_NFR_FISAT_2026.md`:
-- Section A (A1–A5): all five items answered above with file-level evidence. Nothing in the supervisor's A-section is unaddressed.
-- Section B (B1–B5): all five items checked above; B4 is correctly reported as a human action, not a repository state, per the supervisor's own framing ("các em tự soi lại... tôi sẽ kiểm lại").
-- Section C (camera-ready: BOM encoding, DOI, ORCID, Acknowledgements): explicitly out of scope per the supervisor's own note ("chỉ làm sau khi có kết quả nhận — chưa gấp") and is not claimed as complete here.
-- The supervisor's closing instruction asks for exactly three things: (1) the revised `.tex` — present at `paper/main.tex`; (2) an A1–A5 response with evidence — this document (and its companion `REVIEWER_RESPONSE.md`); (3) confirmation that B1–B5 were self-checked — provided above. No requested item is missing.
+- `.tex` đã sửa: `paper/main.tex`
+- PDF đã build: `paper/main.pdf`
+- Số trang body sau khi cắt: tối đa 14 trang
+- Tổng PDF: 15 trang
+- Kết quả DistilBERT trong bảng: Table `tab:nice-cv` và `tab:nice-per-label`
+- Giải trình mục 2 và mục 5: nằm trong tài liệu này
+- Artifact: `artifacts/nfr_eai_fisat_2026_review_artifact.zip`
+- Package mới nhất: `submission/fisat2026_review_20260713_222340`
