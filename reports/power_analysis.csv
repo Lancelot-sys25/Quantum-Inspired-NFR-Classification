@@ -1,0 +1,2 @@
+test,effect_size_dz,alpha,target_power,minimum_independent_pairs,achieved_power
+two-sided paired t-test,0.5,0.05,0.8,34,0.807777501279274

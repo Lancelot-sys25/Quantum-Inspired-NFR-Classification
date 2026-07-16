@@ -70,6 +70,10 @@ def main() -> None:
             [python, "scripts/run_nice_ablation_experiment.py", *common_cv],
         ),
         (
+            "statistical_effect_sizes_and_power",
+            [python, "scripts/reproduce_statistical_analysis.py", "--out-dir", str(out_dir)],
+        ),
+        (
             "nice_explainability_deletion",
             [
                 python,

@@ -1,6 +1,6 @@
 # Final Submission Audit for EAI FISAT 2026
 
-Date checked: 2026-07-13
+Date checked: 2026-07-16
 
 ## Verified Experiment Run
 
@@ -37,7 +37,7 @@ The fine-tuned transformer baseline was also run successfully with:
 .\.venv\Scripts\python.exe scripts\run_nice_finetuned_transformer_experiment.py --model-name distilbert-base-uncased --folds 5 --epochs 2 --batch-size 16 --learning-rate 5e-5 --use-pos-weight --calibration per_label
 ```
 
-It produced Macro-F1 `0.5333 ± 0.0591` in
+It produced Macro-F1 `0.5333 +/- 0.0591` in
 `reports/nice_finetuned_transformer_distilbert_base_uncased_summary.csv`.
 
 ## Verified Manuscript Build
@@ -47,8 +47,8 @@ It produced Macro-F1 `0.5333 ± 0.0591` in
 pages total. Text extraction confirms:
 
 - page 1 contains `Anonymous Author(s)`;
-- `Conclusion`, `Reproducibility`, `Use of AI Tools`, and `References` begin
-  on page 14;
+- `Conclusion`, `Reproducibility`, `Acknowledgements`, the disclosure of
+  interests, and `References` begin on page 14;
 - references continue and finish on page 15.
 
 Under the supervisor's counting rule (body excluding references and disclosure
@@ -105,9 +105,12 @@ The latest feedback round is addressed in
 - body reduced and verified at 14 pages;
 - abstract, introduction, and conclusion reframed around positive intrinsic
   explanation and diagnostic geometry contributions;
-- fine-tuned DistilBERT added as a visible row in the main CV tables;
+- fine-tuned DistilBERT retained only in the per-label-threshold CV table after
+  protocol provenance was checked;
 - AI disclosure revised to describe assistance accurately while preserving
   author responsibility;
+- the contingent institutional publication award is disclosed as a financial
+  interest rather than being mislabeled as research funding;
 - `docs/author_mastery_checklist.md` added for Proposition, statistics, power,
   and sufficiency oral-defense preparation.
 

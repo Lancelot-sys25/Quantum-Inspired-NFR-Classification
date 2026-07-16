@@ -44,10 +44,9 @@ claim.
 
 ## 3. DistilBERT in Result Tables
 
-Fine-tuned DistilBERT is now a visible row in:
-
-- Table `tab:nice-cv`;
-- Table `tab:nice-per-label`.
+Fine-tuned DistilBERT is retained only in Table `tab:nice-per-label`. Metadata
+confirms that the reported run used per-label calibration, so the same row was
+removed from the global-threshold Table `tab:nice-cv`.
 
 Numbers come from
 `reports/nice_finetuned_transformer_distilbert_base_uncased_summary.csv`:
@@ -57,8 +56,8 @@ Numbers come from
 - Hamming loss: `0.1402 +/- 0.0361`
 - LRAP: `0.7105 +/- 0.0516`
 
-No single-split DistilBERT number is reported because that experiment was not
-run as a single-split protocol.
+No single-split or global-threshold DistilBERT number is reported because those
+protocols were not run.
 
 ## 4. AI Disclosure and Author Ownership
 

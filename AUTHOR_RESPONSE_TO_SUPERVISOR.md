@@ -61,8 +61,9 @@ Lý do đóng góp này vẫn đủ sức thuyết phục reviewer:
 
 ## 3. DistilBERT trong bảng kết quả
 
-Đã thêm fine-tuned DistilBERT thành dòng riêng trong bảng kết quả CV chính và
-bảng per-label threshold.
+Sau khi truy vết metadata, dòng fine-tuned DistilBERT chỉ được giữ trong bảng
+per-label threshold. Dòng này đã bị loại khỏi bảng global-threshold vì không có
+thí nghiệm DistilBERT theo protocol global-threshold.
 
 Số liệu lấy từ
 `reports/nice_finetuned_transformer_distilbert_base_uncased_summary.csv`:
@@ -71,9 +72,9 @@ Số liệu lấy từ
 |---|---:|---:|---:|---:|
 | Fine-tuned DistilBERT | 0.5420 ± 0.0569 | 0.5333 ± 0.0591 | 0.1402 ± 0.0361 | 0.7105 ± 0.0516 |
 
-Không thêm dòng single-split cho DistilBERT vì thí nghiệm DistilBERT hiện được
-chạy theo protocol 5-fold CV, không có số single-split riêng. Bài không bịa số
-cho protocol chưa chạy.
+Không thêm dòng single-split hoặc global-threshold cho DistilBERT vì thí nghiệm
+DistilBERT hiện chỉ được chạy theo protocol 5-fold CV với per-label calibration.
+Bài không tái sử dụng hoặc ước lượng số cho protocol chưa chạy.
 
 ## 4. Khai báo AI và quyền làm chủ của tác giả
 
@@ -166,7 +167,7 @@ Việc nhóm vẫn phải tự làm trước khi nộp:
 - PDF đã build: `paper/main.pdf`
 - Số trang body sau khi cắt: tối đa 14 trang
 - Tổng PDF: 15 trang
-- Kết quả DistilBERT trong bảng: Table `tab:nice-cv` và `tab:nice-per-label`
+- Kết quả DistilBERT trong bảng: chỉ Table `tab:nice-per-label`
 - Giải trình mục 2 và mục 5: nằm trong tài liệu này
 - Artifact: `artifacts/nfr_eai_fisat_2026_review_artifact.zip`
 - Package mới nhất: `submission/fisat2026_review_20260713_222340`

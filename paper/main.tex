@@ -35,8 +35,9 @@ amplitudes; a label interference matrix models NFR co-occurrence, and
 token-level amplitude contributions explain predictions without a post-hoc
 explainer. The paper also gives a theoretical characterization of the deployed
 decision rule, identifying when the quantum-inspired geometry reduces to
-cosine-style ranking and when interference or row-wise normalization creates
-genuine cross-label coupling. We evaluate quantum-inspired variants on the
+cosine-style ranking and when interference, or positive-model row-wise
+normalization, creates genuine cross-label coupling. We evaluate
+quantum-inspired variants on the
 NICE multi-label dataset against TF-IDF Logistic Regression, TF-IDF Linear SVM,
 Sentence-BERT, fine-tuned DistilBERT, and a label-frequency baseline. Under
 5-fold cross-validation, Sentence-BERT achieves the highest Macro-F1; the
@@ -80,16 +81,16 @@ The paper's positive claim is that this formulation provides an intrinsic
 explanation mechanism for multi-label NFR classification and a testable
 theory of when quantum-inspired geometry changes the decision rule. The basic
 projection component is closely related to centroid-based text classification;
-the interference and row-wise normalization analyses make explicit when the
-model becomes more than an independent centroid classifier and when it does
-not. Empirically, the hybrid model offers a small, suggestive accuracy gain
-over comparable TF-IDF baselines, while the primary value of the method lies in
-its transparent scoring structure and diagnostic ablation.
+the interference and positive-model row-wise normalization analyses make
+explicit when the model becomes more than an independent centroid classifier
+and when it does not. Empirically, the hybrid model offers a small, suggestive
+accuracy gain over comparable TF-IDF baselines, while the primary value of the
+method lies in its transparent scoring structure and diagnostic ablation.
 
 The contributions of this paper are:
 \begin{itemize}
     \item an intrinsically explainable quantum-inspired formulation for multi-label NFR classification;
-    \item a theoretical characterization of interference and row-wise normalization as the two sources of cross-label coupling;
+    \item a theoretical characterization of interference and, for the positive-projection model, row-wise normalization as two sources of cross-label coupling;
     \item token-level semantic amplitude explanations evaluated with a deletion-based ERASER faithfulness test;
     \item empirical comparison against TF-IDF Logistic Regression, TF-IDF Linear SVM, Sentence-BERT, fine-tuned DistilBERT, and a label-frequency baseline on the NICE dataset;
     \item an ablation study showing where projection type, label interference, and hybrid fusion weight help or fail.
@@ -232,14 +233,16 @@ terms are faithful, deleting them should reduce the model score more than
 deleting random nonzero terms.
 
 \subsection{Theoretical Characterization}
-The proposed formulation exposes two independent sources of cross-label
-coupling in the deployed decision rule: the interference matrix
-(Proposition~\ref{prop:interference}) and the row-wise score normalization
-that the implementation always applies before thresholding
+The positive-projection formulation exposes two mechanistically distinct
+sources of cross-label coupling in its deployed decision rule: the interference
+matrix (Proposition~\ref{prop:interference}) and the row-wise score
+normalization applied by this variant before thresholding
 (Proposition~\ref{prop:reduction}). Only the within-instance \emph{ranking}
 of labels reduces to a cosine-similarity ranking; the thresholded binary
-decision does not reduce to $L$ independent per-label centroid classifiers,
-even when interference is switched off.
+decision of this variant does not reduce to $L$ independent per-label centroid
+classifiers, even when interference is switched off. The contrastive and hybrid
+variants instead use sigmoid-calibrated scores without row-wise min--max
+normalization, so Proposition~\ref{prop:reduction} does not apply to them.
 
 \begin{proposition}[Interference as label coupling]
 \label{prop:interference}
@@ -252,7 +255,8 @@ The second term injects score mass from co-occurring labels $k$, where
 $M_{kl}=N_{kl}/N_k$. This coupling cannot be represented by a diagonal
 per-label centroid classifier; together with the row-wise normalization in
 Proposition~\ref{prop:reduction}, it is one of two mechanisms by which the
-deployed decision rule departs from an independent per-label classifier.
+positive-projection decision rule departs from an independent per-label
+classifier.
 \end{proposition}
 
 \begin{proof}
@@ -350,6 +354,8 @@ are imbalanced. Two threshold protocols are evaluated. First, a single global
 threshold is selected on an internal validation split by maximizing Macro-F1
 over thresholds from 0.05 to 0.95. Second, a per-label threshold protocol
 selects an independent threshold for each NFR label on the validation split.
+Fine-tuned DistilBERT was evaluated only with the per-label protocol; no
+global-threshold DistilBERT result is reported.
 
 \subsection{Hyperparameters}
 Table \ref{tab:hyperparameters} summarizes the main hyperparameters used for
@@ -416,11 +422,11 @@ results should be interpreted cautiously.
 
 \subsection{5-Fold Cross-validation on NICE}
 Table \ref{tab:nice-cv} reports 5-fold cross-validation results with mean and
-standard deviation across folds, including the fine-tuned DistilBERT baseline.
+standard deviation across folds under the global-threshold protocol.
 
 \begin{table}[htbp]
 \centering
-\caption{Mean and standard deviation of 5-fold cross-validation results on the NICE multi-label dataset. Fine-tuned DistilBERT is reported with its validation-selected per-label thresholds; the other rows use the global threshold protocol. Sentence-BERT achieves the highest LRAP; the hybrid quantum--SVM model obtains the highest Micro-F1 and Macro-F1 among non-embedding models, while TF-IDF Logistic Regression obtains the lowest Hamming loss.}
+\caption{Mean and standard deviation of 5-fold cross-validation results on the NICE multi-label dataset using one validation-selected global threshold per fold. Sentence-BERT achieves the highest LRAP; the hybrid quantum--SVM model obtains the highest Micro-F1 and Macro-F1 among non-embedding models, while TF-IDF Logistic Regression obtains the lowest Hamming loss.}
 \label{tab:nice-cv}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
@@ -431,7 +437,6 @@ Sentence-BERT + LR & 0.6493 $\pm$ 0.0357 & \textbf{0.6121 $\pm$ 0.0450} & 0.0919
 Hybrid Quantum--SVM Fusion & \textbf{0.6839 $\pm$ 0.0331} & 0.6084 $\pm$ 0.0294 & 0.0768 $\pm$ 0.0074 & 0.8040 $\pm$ 0.0266 \\
 TF-IDF Linear SVM & 0.6821 $\pm$ 0.0405 & 0.6049 $\pm$ 0.0336 & 0.0764 $\pm$ 0.0094 & 0.8056 $\pm$ 0.0262 \\
 TF-IDF Logistic Regression & 0.6787 $\pm$ 0.0463 & 0.5977 $\pm$ 0.0229 & \textbf{0.0759 $\pm$ 0.0140} & 0.7990 $\pm$ 0.0240 \\
-Fine-tuned DistilBERT & 0.5420 $\pm$ 0.0569 & 0.5333 $\pm$ 0.0591 & 0.1402 $\pm$ 0.0361 & 0.7105 $\pm$ 0.0516 \\
 Contrastive Quantum Projection & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
 Quantum-inspired Projection & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
 Label-frequency baseline & 0.2328 $\pm$ 0.0034 & 0.2083 $\pm$ 0.0032 & 0.7927 $\pm$ 0.0019 & 0.4059 $\pm$ 0.0110 \\
@@ -449,19 +454,13 @@ Linear SVM ($p=0.1875$) or TF-IDF Logistic Regression ($p=0.4375$). Given the
 small number of folds and the dependence induced by cross-validation
 resampling, these tests should be interpreted as descriptive evidence rather
 than a strong statistical conclusion \cite{demsar2006statistical}.
-The fine-tuned DistilBERT row is weaker than the frozen Sentence-BERT+LR
-baseline and the TF-IDF/hybrid models in this small, imbalanced setting,
-indicating that direct fine-tuning of a general-purpose encoder is not
-automatically superior to strong linear baselines under the present data
-budget.
-
 \subsection{5-Fold Cross-validation with Per-label Thresholds}
 Table \ref{tab:nice-per-label} reports the 5-fold results when each label
 receives its own threshold selected on the validation split.
 
 \begin{table}[htbp]
 \centering
-\caption{Mean and standard deviation of 5-fold results with per-label threshold calibration on the NICE multi-label dataset. Sentence-BERT has the highest Macro-F1 and LRAP, while the hybrid quantum--SVM model remains the strongest non-embedding model in Macro-F1.}
+\caption{Mean and standard deviation of 5-fold results with per-label threshold calibration on the NICE multi-label dataset. This is the only threshold protocol run for fine-tuned DistilBERT. Sentence-BERT has the highest Macro-F1 and LRAP, while the hybrid quantum--SVM model remains the strongest non-embedding model in Macro-F1.}
 \label{tab:nice-per-label}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
@@ -480,13 +479,17 @@ Fine-tuned DistilBERT & 0.5420 $\pm$ 0.0569 & 0.5333 $\pm$ 0.0591 & 0.1402 $\pm$
 
 With per-label threshold calibration, Sentence-BERT again obtains the best
 Macro-F1, and the hybrid quantum--SVM model remains the strongest
-non-embedding model in Macro-F1. Absolute Macro-F1 decreases for every model
-relative to the global-threshold protocol (Table~\ref{tab:nice-cv}), likely
-reflecting the smaller per-label validation subsets used to select each
-threshold; the hybrid model's relative drop (-3.8\%) is smaller than TF-IDF
-Linear SVM's (-6.8\%) or TF-IDF Logistic Regression's (-5.8\%), suggesting the
-hybrid model is comparatively more robust to per-label threshold calibration
-rather than benefiting from it in absolute terms.
+non-embedding model in Macro-F1. Among the models evaluated under both
+protocols, absolute Macro-F1 decreases relative to the global-threshold
+protocol (Table~\ref{tab:nice-cv}), likely reflecting the smaller per-label
+validation subsets used to select each threshold; the hybrid model's relative
+drop (-3.8\%) is smaller than TF-IDF Linear SVM's (-6.8\%) or TF-IDF Logistic
+Regression's (-5.8\%). The fine-tuned DistilBERT result cannot be compared
+across threshold protocols because no global-threshold run is available. Under
+the per-label protocol, it is weaker than the frozen Sentence-BERT+LR baseline
+and the TF-IDF/hybrid models in this small, imbalanced setting, showing that
+direct fine-tuning of a general-purpose encoder is not automatically superior
+to strong linear baselines under the present data budget.
 
 \subsection{Ablation Study}
 Table \ref{tab:nice-ablation} reports a 5-fold ablation study of the main
@@ -597,8 +600,10 @@ same TF-IDF representation ($+0.0139$, paired $d_z=0.49$), but the gain is
 not statistically reliable: it is negative in 2 of 5 folds, and all main
 Wilcoxon comparisons in Tables~\ref{tab:nice-cv} and
 \ref{tab:nice-per-label} are non-significant ($p\geq0.1875$). Detecting an
-effect of this size with conventional power would require roughly 30--35
-paired folds, which is not realistic for one 381-instance dataset; hence the
+effect of this size in an idealized two-sided paired $t$-test ($\alpha=0.05$,
+power $=0.80$) would require 34 independent pairs. Cross-validation folds from
+one dataset are dependent, so this calculation is a sensitivity diagnostic,
+not a proposal to create 34 folds from the same 381 instances; hence the
 accuracy gain should be read as suggestive, not confirmed.
 
 To reduce reliance on fold-level significance testing, we also ran a paired
@@ -674,8 +679,8 @@ for multi-label NFR classification. Requirements are semantic states, labels
 are projection directions, and predictions are explained through semantic
 amplitude contributions rather than post-hoc approximations. The theoretical
 analysis clarifies exactly when the model behaves like cosine-style centroid
-ranking and when interference or row-wise normalization creates cross-label
-coupling.
+ranking and when interference, or row-wise normalization in the
+positive-projection variant, creates cross-label coupling.
 
 Empirically, the method's strongest role is explanatory and diagnostic. The
 hybrid quantum--SVM model is competitive with TF-IDF baselines and is the
@@ -698,13 +703,15 @@ dependencies needed to reproduce the experiments, including an aggregate
 runner script. For anonymous review, it is
 available through the \href{https://anonymous.4open.science/r/nfr-review-artifact-CE2D/}{anonymous artifact repository}.
 
-\section*{Use of AI Tools}
-The authors used a large language model to assist with implementation checks,
-dependency diagnosis, experiment re-runs, statistical-script review,
-consistency checks, and language editing. The authors independently reviewed
-and rewrote the propositions, statistical interpretations, contribution
-framing, and final text against the code, logs, and exported results, and take
-full responsibility for the paper.
+\section*{Acknowledgements}
+The authors used a large language model to assist with implementation and
+dependency checks, experiment re-runs, statistical analysis, the derivation
+and verification of Proposition~2, contribution framing, consistency checks,
+and language editing; the authors take full responsibility for verifying the
+code, results, proofs, analyses, and final manuscript.
+
+\noindent\textbf{Disclosure of interests.} The authors may be eligible for an
+institutional publication award if this paper is accepted.
 
 \bibliographystyle{splncs04}
 \bibliography{references}

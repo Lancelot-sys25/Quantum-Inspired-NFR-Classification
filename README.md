@@ -122,13 +122,21 @@ To run the task-adapted DistilBERT baseline reported in the paper:
 python scripts/run_nice_finetuned_transformer_experiment.py --model-name distilbert-base-uncased --folds 5 --epochs 2 --batch-size 16 --learning-rate 5e-5 --use-pos-weight --calibration per_label
 ```
 
+The reported DistilBERT result uses per-label threshold calibration only; no
+global-threshold DistilBERT result is available. Reproduce the paired effect
+sizes and the idealized power calculation with:
+
+```bash
+python scripts/reproduce_statistical_analysis.py
+```
+
 ---
 
 ## Experimental Results
 
 Below is a summary of the empirical findings obtained during our evaluation:
 
-### Classification Performance (5-Fold Cross-Validation on NICE Dataset)
+### Classification Performance (Global-threshold 5-Fold CV on NICE)
 
 | Classifier | Micro-F1 | Macro-F1 | Hamming Loss | LRAP |
 | :--- | :---: | :---: | :---: | :---: |
@@ -137,13 +145,23 @@ Below is a summary of the empirical findings obtained during our evaluation:
 | TF-IDF Linear SVM | 0.6821 | 0.6049 | 0.0764 | 0.8056 |
 | **Hybrid (Quantum + SVM)** | **0.6839** | 0.6084 | 0.0768 | 0.8040 |
 | *Sentence-BERT (Dense Embedding)* | *0.6493* | **0.6121** | *0.0919* | **0.8361** |
-| Fine-tuned DistilBERT | 0.5420 | 0.5333 | 0.1402 | 0.7105 |
 
 *Note: Sentence-BERT has the highest Macro-F1 and LRAP. The Hybrid model is the
 strongest non-embedding model by Macro-F1, but its gain over TF-IDF baselines is
-small and not statistically significant at the current dataset size. Fine-tuned
-DistilBERT is included as a task-adapted neural baseline and underperforms the
-linear and hybrid baselines in this small-data setting.*
+small and not statistically significant at the current dataset size.*
+
+### Classification Performance (Per-label-threshold 5-Fold CV on NICE)
+
+| Classifier | Micro-F1 | Macro-F1 | Hamming Loss | LRAP |
+| :--- | :---: | :---: | :---: | :---: |
+| TF-IDF Logistic Regression | 0.6219 | 0.5629 | 0.0967 | 0.7990 |
+| TF-IDF Linear SVM | 0.6085 | 0.5640 | 0.1057 | 0.8056 |
+| **Hybrid (Quantum + SVM)** | 0.6178 | 0.5854 | 0.1027 | 0.8040 |
+| *Sentence-BERT (Dense Embedding)* | **0.6386** | **0.5990** | **0.0947** | **0.8361** |
+| Fine-tuned DistilBERT | 0.5420 | 0.5333 | 0.1402 | 0.7105 |
+
+*Fine-tuned DistilBERT was evaluated only under this per-label protocol, so its
+row must not be reused in the global-threshold table.*
 
 ### Explanation Faithfulness (ERASER Benchmark)
 
@@ -154,7 +172,10 @@ Faithfulness metrics evaluated across 158 true test split assignments for the to
 | **Contrastive Projection** | **0.0305** | **-0.0395** | **5.21x (Comp)** |
 | TF-IDF Linear SVM | 0.0867 | 0.0484 | 4.01x (Comp) |
 
-*The negative sufficiency metric for the Contrastive Projection model shows that keeping only the key rationales slightly increases the prediction score, filtering out background document noise and confirming that the model's highlighted terms are highly faithful.*
+*The negative sufficiency metric for the Contrastive Projection model means
+that keeping only the selected rationale slightly increases the prediction
+score. This may indicate that other tokens add background noise, but it is not
+evidence of human usefulness and is interpreted cautiously.*
 
 ---
 
