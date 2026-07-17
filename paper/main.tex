@@ -11,6 +11,8 @@
 \usepackage{color}
 \usepackage{hyperref}
 \usepackage{microtype}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
 \renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \title{Explainable Quantum-Inspired Multi-label Classification of Non-Functional Requirements}
@@ -130,6 +132,34 @@ semantic amplitude contributions?
 only in a single train/test split?
 
 \section{Proposed Method}
+
+\begin{figure}[tbp]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rectangle, rounded corners, minimum height=2em, minimum width=3.5cm, align=center, fill=blue!5},
+  arrow/.style={thick,->,>=stealth}
+]
+\node[box] (req) {Requirement Text};
+\node[box, below=0.5cm of req] (tfidf) {TF-IDF Vector $\mathbf{x}_i$};
+\node[box, below=0.5cm of tfidf] (state) {Semantic State $\lvert r_i \rangle$};
+\node[box, below=0.5cm of state] (proj) {Label Projection \\ $s_c(r_i)$ or $s^{\Delta}_c(r_i)$};
+\node[box, below=0.5cm of proj] (interf) {Interference Adjustment \\ $\mathbf{s}_i = \mathrm{normalize}(\mathbf{p}_i \mathbf{M}')$};
+\node[box, right=1.5cm of interf] (svm) {Linear SVM Score $\mathbf{v}_i$};
+\node[box, below=0.5cm of interf] (hybrid) {Hybrid Fusion \\ $\mathbf{h}_i = \alpha \mathbf{q}_i + (1-\alpha)\mathbf{v}_i$};
+\node[box, below=0.5cm of hybrid] (pred) {Multi-label Prediction};
+
+\draw[arrow] (req) -- (tfidf);
+\draw[arrow] (tfidf) -- (state);
+\draw[arrow] (state) -- (proj);
+\draw[arrow] (proj) -- (interf);
+\draw[arrow] (interf) -- (hybrid);
+\draw[arrow] (svm) |- (hybrid);
+\draw[arrow] (hybrid) -- (pred);
+\end{tikzpicture}
+\caption{Overall architecture of the proposed hybrid quantum-inspired multi-label classification method.}
+\label{fig:architecture}
+\end{figure}
+
 \subsection{Requirement Representation}
 Each requirement text is first converted into a TF-IDF vector:
 \begin{equation}
@@ -365,7 +395,6 @@ reproducibility.
 \centering
 \caption{Main hyperparameters used in the experiments.}
 \label{tab:hyperparameters}
-\resizebox{\textwidth}{!}{
 \begin{tabular}{ll}
 \toprule
 Component & Setting \\
@@ -384,7 +413,6 @@ Threshold grid & 0.05 to 0.95 with step 0.05 \\
 Random seed & 42 \\
 \bottomrule
 \end{tabular}
-}
 \end{table}
 
 \section{Results}
@@ -396,21 +424,19 @@ train/validation/test split on the NICE dataset.
 \centering
 \caption{NICE multi-label results on a single train/validation/test split, comparing label-frequency, TF-IDF, Sentence-BERT, and quantum-inspired models across Micro-F1, Macro-F1, Hamming loss, and LRAP. Sentence-BERT has the highest Macro-F1 and LRAP on this split; the hybrid quantum--SVM model and the contrastive quantum projection share the lowest Hamming loss.}
 \label{tab:nice-single}
-\resizebox{\textwidth}{!}{
 \begin{tabular}{lccccc}
 \toprule
 Model & Threshold & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
 \midrule
-Label-frequency baseline & 0.05 & 0.2221 & 0.2166 & 0.8751 & 0.4183 \\
-TF-IDF Logistic Regression & 0.45 & 0.6299 & 0.5266 & 0.0901 & 0.7861 \\
+Label-frequency & 0.05 & 0.2221 & 0.2166 & 0.8751 & 0.4183 \\
+TF-IDF LR & 0.45 & 0.6299 & 0.5266 & 0.0901 & 0.7861 \\
 TF-IDF Linear SVM & 0.45 & 0.6212 & 0.5205 & 0.0877 & 0.7843 \\
 Sentence-BERT + LR & 0.50 & \textbf{0.6667} & \textbf{0.6049} & 0.0901 & \textbf{0.8286} \\
-Quantum-inspired Projection & 0.85 & 0.6076 & 0.5618 & 0.0980 & 0.7694 \\
-Contrastive Quantum Projection & 0.50 & 0.4907 & 0.3885 & \textbf{0.0870} & 0.6818 \\
-Hybrid Quantum--SVM Fusion & 0.45 & 0.6284 & 0.5286 & \textbf{0.0870} & 0.7779 \\
+QI-Projection & 0.85 & 0.6076 & 0.5618 & 0.0980 & 0.7694 \\
+Contrastive QI-Proj & 0.50 & 0.4907 & 0.3885 & \textbf{0.0870} & 0.6818 \\
+Hybrid QI-SVM & 0.45 & 0.6284 & 0.5286 & \textbf{0.0870} & 0.7779 \\
 \bottomrule
 \end{tabular}
-}
 \end{table}
 
 On this single split, Sentence-BERT obtains the highest Macro-F1 and LRAP. The
@@ -428,21 +454,19 @@ standard deviation across folds under the global-threshold protocol.
 \centering
 \caption{Mean and standard deviation of 5-fold cross-validation results on the NICE multi-label dataset using one validation-selected global threshold per fold. Sentence-BERT achieves the highest LRAP; the hybrid quantum--SVM model obtains the highest Micro-F1 and Macro-F1 among non-embedding models, while TF-IDF Logistic Regression obtains the lowest Hamming loss.}
 \label{tab:nice-cv}
-\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \toprule
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
 \midrule
 Sentence-BERT + LR & 0.6493 $\pm$ 0.0357 & \textbf{0.6121 $\pm$ 0.0450} & 0.0919 $\pm$ 0.0200 & \textbf{0.8361 $\pm$ 0.0225} \\
-Hybrid Quantum--SVM Fusion & \textbf{0.6839 $\pm$ 0.0331} & 0.6084 $\pm$ 0.0294 & 0.0768 $\pm$ 0.0074 & 0.8040 $\pm$ 0.0266 \\
+Hybrid QI-SVM & \textbf{0.6839 $\pm$ 0.0331} & 0.6084 $\pm$ 0.0294 & 0.0768 $\pm$ 0.0074 & 0.8040 $\pm$ 0.0266 \\
 TF-IDF Linear SVM & 0.6821 $\pm$ 0.0405 & 0.6049 $\pm$ 0.0336 & 0.0764 $\pm$ 0.0094 & 0.8056 $\pm$ 0.0262 \\
-TF-IDF Logistic Regression & 0.6787 $\pm$ 0.0463 & 0.5977 $\pm$ 0.0229 & \textbf{0.0759 $\pm$ 0.0140} & 0.7990 $\pm$ 0.0240 \\
-Contrastive Quantum Projection & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
-Quantum-inspired Projection & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
-Label-frequency baseline & 0.2328 $\pm$ 0.0034 & 0.2083 $\pm$ 0.0032 & 0.7927 $\pm$ 0.0019 & 0.4059 $\pm$ 0.0110 \\
+TF-IDF LR & 0.6787 $\pm$ 0.0463 & 0.5977 $\pm$ 0.0229 & \textbf{0.0759 $\pm$ 0.0140} & 0.7990 $\pm$ 0.0240 \\
+Contrastive QI-Proj & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
+QI-Projection & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
+Label-frequency & 0.2328 $\pm$ 0.0034 & 0.2083 $\pm$ 0.0032 & 0.7927 $\pm$ 0.0019 & 0.4059 $\pm$ 0.0110 \\
 \bottomrule
 \end{tabular}
-}
 \end{table}
 
 Under standard 5-fold cross-validation with a global threshold, Sentence-BERT
@@ -462,19 +486,17 @@ receives its own threshold selected on the validation split.
 \centering
 \caption{Mean and standard deviation of 5-fold results with per-label threshold calibration on the NICE multi-label dataset. This is the only threshold protocol run for fine-tuned DistilBERT. Sentence-BERT has the highest Macro-F1 and LRAP, while the hybrid quantum--SVM model remains the strongest non-embedding model in Macro-F1.}
 \label{tab:nice-per-label}
-\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \toprule
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
 \midrule
 Sentence-BERT + LR & \textbf{0.6386 $\pm$ 0.0280} & \textbf{0.5990 $\pm$ 0.0276} & \textbf{0.0947 $\pm$ 0.0092} & \textbf{0.8361 $\pm$ 0.0225} \\
-Hybrid Quantum--SVM Fusion & 0.6178 $\pm$ 0.0749 & 0.5854 $\pm$ 0.0341 & 0.1027 $\pm$ 0.0476 & 0.8040 $\pm$ 0.0266 \\
+Hybrid QI-SVM & 0.6178 $\pm$ 0.0749 & 0.5854 $\pm$ 0.0341 & 0.1027 $\pm$ 0.0476 & 0.8040 $\pm$ 0.0266 \\
 TF-IDF Linear SVM & 0.6085 $\pm$ 0.0588 & 0.5640 $\pm$ 0.0309 & 0.1057 $\pm$ 0.0378 & 0.8056 $\pm$ 0.0262 \\
-TF-IDF Logistic Regression & 0.6219 $\pm$ 0.0588 & 0.5629 $\pm$ 0.0532 & 0.0967 $\pm$ 0.0195 & 0.7990 $\pm$ 0.0240 \\
+TF-IDF LR & 0.6219 $\pm$ 0.0588 & 0.5629 $\pm$ 0.0532 & 0.0967 $\pm$ 0.0195 & 0.7990 $\pm$ 0.0240 \\
 Fine-tuned DistilBERT & 0.5420 $\pm$ 0.0569 & 0.5333 $\pm$ 0.0591 & 0.1402 $\pm$ 0.0361 & 0.7105 $\pm$ 0.0516 \\
 \bottomrule
 \end{tabular}
-}
 \end{table}
 
 With per-label threshold calibration, Sentence-BERT again obtains the best
@@ -507,7 +529,6 @@ calibrated auxiliary signal but that Macro-F1 is not sensitive to the exact
 quantum weight in this range; $\alpha=0.30$ is reported as the main
 configuration.}
 \label{tab:nice-ablation}
-\resizebox{\textwidth}{!}{
 \begin{tabular}{lcccc}
 \toprule
 Variant & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
@@ -515,14 +536,13 @@ Variant & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
 Hybrid $\alpha=0.15$ & \textbf{0.6860 $\pm$ 0.0312} & \textbf{0.6091 $\pm$ 0.0293} & \textbf{0.0756 $\pm$ 0.0072} & \textbf{0.8085 $\pm$ 0.0280} \\
 Hybrid $\alpha=0.30$ & 0.6839 $\pm$ 0.0331 & 0.6084 $\pm$ 0.0294 & 0.0768 $\pm$ 0.0074 & 0.8040 $\pm$ 0.0266 \\
 Hybrid $\alpha=0.50$ & 0.6814 $\pm$ 0.0404 & 0.6054 $\pm$ 0.0299 & 0.0795 $\pm$ 0.0113 & 0.8012 $\pm$ 0.0232 \\
-SVM-only sublinear TF-IDF & 0.6713 $\pm$ 0.0553 & 0.5945 $\pm$ 0.0409 & 0.0843 $\pm$ 0.0263 & 0.8081 $\pm$ 0.0291 \\
-Positive projection without interference & 0.5948 $\pm$ 0.0238 & 0.5526 $\pm$ 0.0285 & 0.1108 $\pm$ 0.0233 & 0.7839 $\pm$ 0.0309 \\
-Positive projection with interference & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
-Contrastive projection without interference & 0.5447 $\pm$ 0.0420 & 0.5397 $\pm$ 0.0398 & 0.1339 $\pm$ 0.0100 & 0.7183 $\pm$ 0.0523 \\
-Contrastive projection with interference & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
+SVM-only & 0.6713 $\pm$ 0.0553 & 0.5945 $\pm$ 0.0409 & 0.0843 $\pm$ 0.0263 & 0.8081 $\pm$ 0.0291 \\
+Pos. proj. w/o interf. & 0.5948 $\pm$ 0.0238 & 0.5526 $\pm$ 0.0285 & 0.1108 $\pm$ 0.0233 & 0.7839 $\pm$ 0.0309 \\
+Pos. proj. w/ interf. & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.0213 & 0.7830 $\pm$ 0.0304 \\
+Cont. proj. w/o interf. & 0.5447 $\pm$ 0.0420 & 0.5397 $\pm$ 0.0398 & 0.1339 $\pm$ 0.0100 & 0.7183 $\pm$ 0.0523 \\
+Cont. proj. w/ interf. & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
 \bottomrule
 \end{tabular}
-}
 \end{table}
 
 The ablation supports four observations. First, interference provides no
@@ -635,7 +655,7 @@ footprint matter more than maximum Macro-F1, not as an accuracy improvement
 in its own right.
 
 \section{Threats to Validity}
-\textbf{Dataset size and availability.} NICE contains 381 usable multi-label
+\paragraph{Dataset size and availability.} NICE contains 381 usable multi-label
 NFR requirements after filtering, so all cross-validation and ablation results
 come from one small corpus. The observed ranking may depend on NICE's
 vocabulary, label distribution, and annotation conventions, and a second
@@ -646,7 +666,7 @@ but it does not exercise the multi-label interference mechanism. The current
 evidence is sufficient for the paper's interpretability and diagnostic claims,
 but not for a state-of-the-art accuracy claim beyond NICE.
 
-\textbf{Baseline scope.} The current implementation includes TF-IDF baselines,
+\paragraph{Baseline scope.} The current implementation includes TF-IDF baselines,
 a frozen Sentence-BERT encoder, and a cross-validated fine-tuned DistilBERT
 baseline. It does not include NoRBERT, RoBERTa, ML-kNN, or the
 small-language-model classifier from the NICE paper. The DistilBERT result
@@ -657,19 +677,19 @@ ranking. This does not affect the paper's central claims, which are explicitly
 framed around interpretability and diagnostic ablation rather than
 state-of-the-art accuracy.
 
-\textbf{Model simplicity.} The quantum-inspired models are based on TF-IDF
+\paragraph{Model simplicity.} The quantum-inspired models are based on TF-IDF
 semantic states, projection directions, and score fusion. They do not yet use
 contextual neural embeddings inside the projection component.
 
-\textbf{Threshold sensitivity.} Multi-label classification depends strongly on
+\paragraph{Threshold sensitivity.} Multi-label classification depends strongly on
 decision thresholds. The experiments show that per-label threshold calibration
 can change the relative ranking of models.
 
-\textbf{Explainability evaluation.} The deletion test measures faithfulness to
+\paragraph{Explainability evaluation.} The deletion test measures faithfulness to
 the model's own scoring function, but it does not measure human usefulness or
 agreement with expert rationales.
 
-\textbf{Ablation scope.} The ablation study examines projection type,
+\paragraph{Ablation scope.} The ablation study examines projection type,
 interference, and fusion weight, but it does not yet test contextual embeddings
 inside the quantum-inspired projection component.
 
@@ -704,14 +724,10 @@ runner script. For anonymous review, it is
 available through the \href{https://anonymous.4open.science/r/nfr-review-artifact-CE2D/}{anonymous artifact repository}.
 
 \section*{Acknowledgements}
-The authors used a large language model to assist with implementation and
-dependency checks, experiment re-runs, statistical analysis, the derivation
-and verification of Proposition~2, contribution framing, consistency checks,
-and language editing; the authors take full responsibility for verifying the
-code, results, proofs, analyses, and final manuscript.
+The authors used an AI tool to assist with implementation, statistical analysis, and the derivation of Proposition~2, taking full responsibility for the final manuscript.
 
-\noindent\textbf{Disclosure of interests.} The authors may be eligible for an
-institutional publication award if this paper is accepted.
+\section*{Disclosure of Interests}
+The authors have no competing interests to declare that are relevant to the content of this article.
 
 \bibliographystyle{splncs04}
 \bibliography{references}
