@@ -43,8 +43,9 @@ It produced Macro-F1 `0.5333 +/- 0.0591` in
 ## Verified Manuscript Build
 
 `paper/main.tex` was rebuilt successfully with Tectonic and the required
-`lmodern` plus `microtype` packages. The generated `paper/main.pdf` has 15
-pages total. Text extraction and visual inspection confirm:
+`lmodern` plus `microtype` packages. The audited submission PDF at
+`output/pdf/fisat_2026_anonymous_submission_audited.pdf` has 15 pages total.
+Text extraction and visual inspection confirm:
 
 - page 1 contains `Anonymous Author(s)`;
 - `Conclusion` begins on page 13;
@@ -129,7 +130,7 @@ The latest feedback round is addressed in
 
 ## Remaining Human Submission Checks
 
-- Rebuild `paper/main.pdf` in Overleaf, TeX Live, or MiKTeX before
+- Rebuild the audited PDF in Overleaf, TeX Live, or MiKTeX before
   uploading, especially if Confy+ expects a PDF produced by pdfLaTeX rather
   than Tectonic/XeTeX.
 - Confirm Confy+ track/scope selection manually.

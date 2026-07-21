@@ -4,7 +4,7 @@ Ngày kiểm tra: 2026-07-21
 
 ## 1. Giới hạn trang
 
-Bản anonymous đã được build lại với LNCS, `lmodern` và `microtype`:
+Bản anonymous audited đã được build lại với LNCS, `lmodern` và `microtype`:
 
 - PDF có đúng 15 trang;
 - `Conclusion` bắt đầu ở trang 13;
