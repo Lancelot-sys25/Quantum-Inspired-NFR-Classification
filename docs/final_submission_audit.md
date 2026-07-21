@@ -1,6 +1,6 @@
 # Final Submission Audit for EAI FISAT 2026
 
-Date checked: 2026-07-16
+Date checked: 2026-07-21
 
 ## Verified Experiment Run
 
@@ -44,15 +44,15 @@ It produced Macro-F1 `0.5333 +/- 0.0591` in
 
 `paper/main.tex` was rebuilt successfully with Tectonic and the required
 `lmodern` plus `microtype` packages. The generated `paper/main.pdf` has 15
-pages total. Text extraction confirms:
+pages total. Text extraction and visual inspection confirm:
 
 - page 1 contains `Anonymous Author(s)`;
-- `Conclusion`, `Reproducibility`, `Acknowledgements`, the disclosure of
-  interests, and `References` begin on page 14;
-- references continue and finish on page 15.
+- `Conclusion` begins on page 13;
+- `Reproducibility`, LNCS credits, and `References` begin on page 14;
+- references finish on page 15.
 
-Under the supervisor's counting rule (body excluding references and disclosure
-sections), the body is 14 pages.
+Under the supervisor's counting rule (excluding references and disclosure),
+the manuscript body ends on page 14.
 
 PDF metadata contains only generic TeX fields (`Creator`, `Producer`, and
 `CreationDate`) and no author name.
@@ -102,7 +102,7 @@ score than the full input.
 The latest feedback round is addressed in
 `docs/supervisor_response_latest.md`. The main changes are:
 
-- body reduced and verified at 14 pages;
+- body ends on page 14 and the complete PDF is 15 pages;
 - abstract, introduction, and conclusion reframed around positive intrinsic
   explanation and diagnostic geometry contributions;
 - fine-tuned DistilBERT retained only in the per-label-threshold CV table after
@@ -129,7 +129,7 @@ The latest feedback round is addressed in
 
 ## Remaining Human Submission Checks
 
-- Optionally rebuild `paper/main.pdf` in Overleaf, TeX Live, or MiKTeX before
+- Rebuild `paper/main.pdf` in Overleaf, TeX Live, or MiKTeX before
   uploading, especially if Confy+ expects a PDF produced by pdfLaTeX rather
   than Tectonic/XeTeX.
 - Confirm Confy+ track/scope selection manually.
