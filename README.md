@@ -1,6 +1,9 @@
 # Explainable Quantum-Inspired Multi-label Classification of Non-Functional Requirements
 
-This repository contains the official implementation, dataset files, evaluation scripts, and LaTeX manuscript for the paper: **"Explainable Quantum-Inspired Multi-label Classification of Non-Functional Requirements"** submitted to EAI FISAT 2026.
+This repository contains the official implementation, dataset acquisition and
+processing scripts, evaluation reports, and LaTeX manuscript for the paper:
+**"Explainable Quantum-Inspired Multi-label Classification of Non-Functional
+Requirements"** submitted to EAI FISAT 2026.
 
 ---
 
@@ -63,6 +66,15 @@ Ensure you have Python 3.10+ (Python 3.11.9 recommended) installed on your syste
    pip install -e .
    ```
 
+4. **Download and verify the exact datasets used in the experiments:**
+   ```bash
+   python scripts/download_datasets.py
+   ```
+   The script downloads NICE from its CC BY 4.0 Zenodo record and PROMISE_exp
+   from its public source repository, verifies their SHA-256 digests, and
+   writes them to `data/raw/`. See `data/README.md` for attribution and source
+   links.
+
 For bit-level reproduction of the submitted tables, use the pinned environment:
 ```bash
 pip install -r requirements-lock.txt
@@ -81,7 +93,8 @@ python -c "from sentence_transformers import SentenceTransformer; SentenceTransf
 
 ## Running Experiments
 
-To reproduce the findings reported in the paper, execute the corresponding scripts below:
+After running `python scripts/download_datasets.py`, reproduce the findings
+reported in the paper with the scripts below:
 
 ### 1. Run the Entire Pipeline
 To run preprocessing, baseline training (including TF-IDF and SBERT), quantum model training, and generate the summary reports, run:
@@ -113,8 +126,8 @@ To test generalizability, we validate the model's performance on the single-labe
 ```bash
 python scripts/run_promise_experiment.py
 ```
-The review artifact includes `data/raw/PROMISE_exp.arff` so this auxiliary
-experiment can run without manually fetching a second dataset.
+The dataset downloader places the verified source file at
+`data/raw/PROMISE_exp.arff`.
 
 ### 5. Fine-tuned Transformer Baseline
 To run the task-adapted DistilBERT baseline reported in the paper:
