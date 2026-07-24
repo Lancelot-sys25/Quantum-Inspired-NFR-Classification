@@ -10,6 +10,8 @@
   - Command: `python scripts/run_nice_per_label_threshold_experiment.py --data data/raw/PROMISE-relabeled-NICE.csv --folds 5 --seed 42 --out-dir reports`
 - `PASS` `nice_ablation`
   - Command: `python scripts/run_nice_ablation_experiment.py --data data/raw/PROMISE-relabeled-NICE.csv --folds 5 --seed 42 --out-dir reports`
+- `PASS` `statistical_effect_sizes_and_power`
+  - Command: `python scripts/reproduce_statistical_analysis.py --out-dir reports`
 - `PASS` `nice_explainability_deletion`
   - Command: `python scripts/run_explainability_deletion_test.py --data data/raw/PROMISE-relabeled-NICE.csv --seed 42 --top-k 3 --random-trials 50 --out-dir reports`
 - `PASS` `nice_robustness_and_bootstrap`

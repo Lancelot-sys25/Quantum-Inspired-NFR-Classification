@@ -21,11 +21,15 @@
 \title{Explainable Quantum-Inspired Multi-label Classification of Non-Functional Requirements}
 \titlerunning{Explainable Quantum-Inspired Multi-label NFR Classification}
 
-\author{Nguyen Hoang Phuc\inst{1} \and Nguyen Le Quynh Giang\inst{1} \and Le Doan Gia Hung\inst{1} \and Lai Duc Hung\inst{1}}
+\author{Nguyen Hoang Phuc\inst{1} \and
+Nguyen Le Quynh Giang\inst{1} \and
+Le Doan Gia Hung\inst{1} \and
+Lai Duc Hung\inst{1}}
 \authorrunning{N. H. Phuc et al.}
 
-\institute{FPT University, Ho Chi Minh City, Vietnam \\
-\email{nphuc4748@gmail.com, nguyengiang14012005@gmail.com, lhung291005@gmail.com, hungld@fpt.edu.vn}}
+\institute{FPT University, Ho Chi Minh City, 700000, Vietnam \\
+\email{nphuc4748@gmail.com, nguyengiang14012005@gmail.com,\\
+lhung291005@gmail.com, hungld@fpt.edu.vn}}
 
 \begin{document}
 \maketitle
@@ -489,8 +493,7 @@ validation-selected global threshold per fold. ``Pos.'', ``Cont.'', and
 ``Q--SVM'' abbreviate positive projection, contrastive projection, and hybrid
 quantum--SVM.}
 \label{tab:nice-cv}
-\scriptsize
-\setlength{\tabcolsep}{1.5pt}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
@@ -526,8 +529,7 @@ receives its own threshold selected on the validation split.
 threshold calibration. This is the only protocol run for fine-tuned
 DistilBERT; ``Q--SVM'' abbreviates hybrid quantum--SVM.}
 \label{tab:nice-per-label}
-\scriptsize
-\setlength{\tabcolsep}{1.5pt}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
@@ -565,8 +567,7 @@ calibrated auxiliary signal but that Macro-F1 is not sensitive to the exact
 quantum weight in this range; $\alpha=0.30$ is reported as the main
 configuration.}
 \label{tab:nice-ablation}
-\scriptsize
-\setlength{\tabcolsep}{1.5pt}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Variant & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
@@ -706,15 +707,14 @@ collect human rationale judgments.
 \section*{Reproducibility}
 The artifact includes all scripts, data-processing code, reports, and pinned
 dependencies needed to reproduce the experiments, including an aggregate
-runner script. For anonymous review, it is
-available through the \href{https://anonymous.4open.science/r/nfr-review-artifact-CE2D/}{anonymous artifact repository}.
+runner script. It is available through the
+\href{https://github.com/Lancelot-sys25/Quantum-Inspired-NFR-Classification}{project repository}.
 
 \begin{credits}
 \subsubsection{\ackname}
-The authors used an AI tool to assist with implementation, statistical
-analysis, and the derivation of Proposition~\ref{prop:reduction}. All methods,
-experiments, analyses, and conclusions were designed, executed, and verified
-by the authors, who take full responsibility for the final manuscript.
+The authors used an AI assistant to support implementation, statistical
+analysis, and the derivation in Proposition~\ref{prop:interference}; the
+authors verified all results and take full responsibility for the content.
 
 \subsubsection{\discintname}
 The authors have no competing interests to declare that are relevant to the
