@@ -154,15 +154,15 @@ the point at which the quantum-inspired and classical branches are fused.
 \node[box] (req) {Requirement Text};
 \node[box, right=0.35cm of req] (tfidf) {TF-IDF Vector $\mathbf{x}_i$};
 \node[box, right=0.35cm of tfidf] (state) {Semantic State $\lvert r_i \rangle$};
-\node[box, right=0.35cm of state] (proj) {Label Projection\\$s_c(r_i)$ or $s^{\Delta}_c(r_i)$};
+\node[box, right=0.35cm of state] (proj) {Label\\Projection\\$s_c(r_i)$ or $s^{\Delta}_c(r_i)$};
 \node[box, below=0.4cm of proj] (interf) {Interference\\Adjusted Score $\mathbf{q}_i$};
 \node[box, left=0.35cm of interf] (hybrid) {Hybrid Fusion\\$\alpha\mathbf{q}_i+(1-\alpha)\mathbf{v}_i$};
-\node[box, left=0.35cm of hybrid] (pred) {Multi-label Prediction};
-\node[box, below=0.4cm of state] (svm) {Linear SVM Score $\mathbf{v}_i$};
+\node[box, left=0.35cm of hybrid] (svm) {Linear SVM\\Score $\mathbf{v}_i$};
+\node[box, left=0.35cm of svm] (pred) {Multi-label Prediction};
 
 \draw[arrow] (req) -- (tfidf);
 \draw[arrow] (tfidf) -- (state);
-\draw[arrow] (tfidf.south) -- ++(0,-0.2) -| (svm.north);
+\draw[arrow] (tfidf) -- (svm);
 \draw[arrow] (state) -- (proj);
 \draw[arrow] (proj) -- (interf);
 \draw[arrow] (interf) -- (hybrid);
