@@ -162,7 +162,8 @@ the point at which the quantum-inspired and classical branches are fused.
 
 \draw[arrow] (req) -- (tfidf);
 \draw[arrow] (tfidf) -- (state);
-\draw[arrow] (tfidf.south) -- ++(0,-0.2) -- ++(1.35,0) |- (svm.west);
+\coordinate (svmroute) at ([xshift=-0.25cm]pred.west);
+\draw[arrow] (tfidf.south) -- ++(0,-0.2) -| (svmroute) |- (svm.west);
 \draw[arrow] (state) -- (proj);
 \draw[arrow] (proj) -- (interf);
 \draw[arrow] (interf) -- (hybrid);
