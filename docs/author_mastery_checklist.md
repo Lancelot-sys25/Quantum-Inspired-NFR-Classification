@@ -70,5 +70,5 @@ giải thích các mục dưới đây mà không nhìn tài liệu.
 
 - Biết script nào sinh ra từng bảng kết quả chính.
 - Biết số DistilBERT được lưu ở đâu.
-- Biết vì sao anonymous artifact không được chứa local paths, tên tác giả, tên
-  trường/đơn vị, email, hoặc link GitHub gốc.
+- Biết vì sao public artifact không được chứa local paths, stale review-mode
+  notes, hoặc file không liên quan đến tái lập.

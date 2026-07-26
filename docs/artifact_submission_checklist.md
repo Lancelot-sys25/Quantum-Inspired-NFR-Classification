@@ -2,7 +2,7 @@
 
 Use this checklist before submitting the EAI FISAT 2026 paper.
 
-## Anonymous Review
+## Single-blind Review
 
 1. Recreate the pinned Python environment if exact reproduction is required:
 
@@ -25,8 +25,8 @@ Use this checklist before submitting the EAI FISAT 2026 paper.
    .\.venv\Scripts\python.exe scripts\run_all_experiments.py
    ```
 
-4. Rebuild `paper/main.pdf` from `paper/main.tex` and confirm the anonymous
-   author block, references, and page count.
+4. Rebuild `paper/main.pdf` from `paper/main.tex` and confirm the author
+   block, references, and page count.
 
 5. Run the artifact packager:
 
@@ -34,17 +34,19 @@ Use this checklist before submitting the EAI FISAT 2026 paper.
    .\scripts\make_review_artifact.ps1
    ```
 
-6. Upload `artifacts\nfr_eai_fisat_2026_review_artifact.zip` to an anonymous
-   artifact host, for example Anonymous GitHub or Anonymous 4open.science.
+6. Upload or verify the public project repository:
+   <https://github.com/Lancelot-sys25/Quantum-Inspired-NFR-Classification>.
 
-7. Replace the reproducibility placeholder in the paper or submission form with
-   the anonymous artifact URL.
+7. Confirm the reproducibility link in the paper and submission form points to
+   the public repository.
 
-8. Check that the uploaded archive does not expose author names through Git
-   history, local paths, PDF metadata, or account ownership.
+8. Check that the uploaded archive does not expose local machine paths, stale
+   review-mode notes, or files unrelated to reproduction.
 
 ## Camera-ready
 
-1. Create a final public repository or archive after review.
+1. Keep the final public repository or archive synchronized with the accepted
+   paper source.
 2. Mint a Zenodo DOI for the camera-ready artifact.
-3. Replace the anonymous review URL with the DOI.
+3. Replace the public repository URL with the DOI if the proceedings require a
+   DOI-backed artifact.

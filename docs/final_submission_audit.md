@@ -1,6 +1,6 @@
 # Final Submission Audit for EAI FISAT 2026
 
-Date checked: 2026-07-21
+Date checked: 2026-07-26
 
 ## Verified Experiment Run
 
@@ -42,21 +42,18 @@ It produced Macro-F1 `0.5333 +/- 0.0591` in
 
 ## Verified Manuscript Build
 
-`paper/main.tex` was rebuilt successfully with Tectonic and the required
-`lmodern` plus `microtype` packages. The audited submission PDF at
-`output/pdf/fisat_2026_anonymous_submission_audited.pdf` has 15 pages total.
-Text extraction and visual inspection confirm:
+`paper/main.tex` should be rebuilt with the required `lmodern` plus
+`microtype` packages before upload. The latest source audit confirms:
 
-- page 1 contains `Anonymous Author(s)`;
-- `Conclusion` begins on page 13;
-- `Reproducibility`, LNCS credits, and `References` begin on page 14;
-- references finish on page 15.
+- page 1 contains the full author block for Nguyen Hoang Phuc, Nguyen Le Quynh
+  Giang, Le Doan Gia Hung, and Lai Duc Hung;
+- `\authorrunning{N. H. Phuc et al.}` is present;
+- the affiliation is `FPT University, Ho Chi Minh City, Vietnam`;
+- the reproducibility link points to the public GitHub repository;
+- the three main results tables use `\small` with readable column spacing.
 
-Under the supervisor's counting rule (excluding references and disclosure),
-the manuscript body ends on page 14.
-
-PDF metadata contains only generic TeX fields (`Creator`, `Producer`, and
-`CreationDate`) and no author name.
+Rebuild the PDF with pdfLaTeX/BibTeX before upload to confirm the page count,
+undefined references, overfull boxes, and PDF metadata in the final environment.
 
 ## Supervisor Feedback Coverage
 
@@ -103,7 +100,8 @@ score than the full input.
 The latest feedback round is addressed in
 `docs/supervisor_response_latest.md`. The main changes are:
 
-- body ends on page 14 and the complete PDF is 15 pages;
+- source remains within the expected full-paper length from the previous
+  audited build, pending a final pdfLaTeX rebuild;
 - abstract, introduction, and conclusion reframed around positive intrinsic
   explanation and diagnostic geometry contributions;
 - fine-tuned DistilBERT retained only in the per-label-threshold CV table after
@@ -117,10 +115,11 @@ The latest feedback round is addressed in
 
 ## Submission Package Checks
 
-- Anonymous manuscript source: `paper/main.tex`
-- The non-anonymous camera-ready source must not be uploaded for review.
+- Single-blind manuscript source: `paper/main.tex`
+- Public Overleaf/source package: `artifacts/fisat_2026_overleaf_source_final.zip`
 - Artifact packager: `scripts/make_review_artifact.ps1`
-- Review artifact output: `artifacts/nfr_eai_fisat_2026_review_artifact.zip`
+- Public artifact repository:
+  `https://github.com/Lancelot-sys25/Quantum-Inspired-NFR-Classification`
 - Raw datasets included in artifact:
   - `data/raw/PROMISE-relabeled-NICE.csv`
   - `data/raw/PROMISE_exp.arff`
@@ -130,8 +129,8 @@ The latest feedback round is addressed in
 
 ## Remaining Human Submission Checks
 
-- Rebuild the audited PDF in Overleaf, TeX Live, or MiKTeX before
+- Rebuild the final PDF in Overleaf, TeX Live, or MiKTeX before
   uploading, especially if Confy+ expects a PDF produced by pdfLaTeX rather
   than Tectonic/XeTeX.
 - Confirm Confy+ track/scope selection manually.
-- Upload only anonymous review files and the anonymized artifact.
+- Upload the named single-blind PDF and matching source package.

@@ -1,6 +1,6 @@
-﻿# Review Artifact
+﻿# Public Artifact
 
-This anonymized artifact contains the implementation, scripts, data files, and
+This public artifact contains the implementation, scripts, data files, and
 generated reports needed to reproduce the experiments for the EAI FISAT 2026
 submission.
 

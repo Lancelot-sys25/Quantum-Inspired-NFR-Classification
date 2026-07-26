@@ -210,4 +210,4 @@ pdflatex paper/main.tex
 
 * **Conference:** EAI FISAT 2026 (EAI FPT International Conference on Intelligent Systems and Advanced Technologies)
 * **Publisher:** Springer - Lecture Notes in Computer Science (LNCS) / EAISICC Series
-* **Submissions Anonymization:** Double-blind review (names and source codes are anonymized for review purposes).
+* **Review mode:** Single-blind review; author names and affiliations are included in the manuscript.

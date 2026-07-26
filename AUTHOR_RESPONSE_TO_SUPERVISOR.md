@@ -4,7 +4,7 @@ Ngày kiểm tra: 2026-07-21
 
 ## 1. Giới hạn trang
 
-Bản anonymous audited đã được build lại với LNCS, `lmodern` và `microtype`:
+Bản audited đã được build lại với LNCS, `lmodern` và `microtype`:
 
 - PDF có đúng 15 trang;
 - `Conclusion` bắt đầu ở trang 13;
@@ -40,8 +40,8 @@ Wilcoxon, bootstrap, effect size, power analysis và sufficiency trước khi n�
 
 ## 5. Artifact và file nộp
 
-- Source anonymous: `artifacts/fisat_2026_overleaf_anonymous_source_audited.zip`
-- PDF anonymous: `output/pdf/fisat_2026_anonymous_submission_audited.pdf`
-- Artifact công khai: <https://anonymous.4open.science/r/nfr-review-artifact-CE2D/>
+- Source nộp bài: `artifacts/fisat_2026_overleaf_source_final.zip`
+- Paper source chính: `paper/main.tex`
+- Artifact công khai: <https://github.com/Lancelot-sys25/Quantum-Inspired-NFR-Classification>
 
-Không upload `paper/main_cameraready.tex` trong giai đoạn double-blind.
+Hội nghị dùng single-blind, vì vậy bản nộp giữ đầy đủ tên tác giả và affiliation.

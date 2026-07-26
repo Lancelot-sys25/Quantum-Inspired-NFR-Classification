@@ -1,12 +1,14 @@
 # Response to Latest Supervisor Feedback
 
-Date checked: 2026-07-21
+Date checked: 2026-07-26
 
 ## Page limit
 
-The anonymous manuscript builds to 15 pages. The Conclusion begins on page 13;
-Reproducibility, LNCS credits, and References begin on page 14; References end
-on page 15. The build has no overfull boxes or unresolved references.
+The latest source is prepared for single-blind submission with the full author
+block restored. The previous audited build was 15 pages, with Conclusion on
+page 13 and Reproducibility, LNCS credits, and References beginning on page 14.
+A final pdfLaTeX/BibTeX rebuild is still required in the upload environment to
+reconfirm page count, overfull boxes, and unresolved references.
 
 Repeated wording in Results, Discussion, and Threats was removed without
 changing reported values, propositions, limitations, or font size.
@@ -34,5 +36,6 @@ bootstrap results, effect size, power analysis, and sufficiency convention.
 
 ## Submission files
 
-Use only the audited anonymous PDF and audited Overleaf source ZIP. The public
-artifact must remain at the existing anonymous URL; do not create a new mirror.
+Use the named single-blind PDF and the final Overleaf source ZIP. The public
+artifact is the GitHub repository:
+<https://github.com/Lancelot-sys25/Quantum-Inspired-NFR-Classification>.
