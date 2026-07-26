@@ -48,7 +48,7 @@ It produced Macro-F1 `0.5333 +/- 0.0591` in
 - page 1 contains the full author block for Nguyen Hoang Phuc, Nguyen Le Quynh
   Giang, Le Doan Gia Hung, and Lai Duc Hung;
 - `\authorrunning{N. H. Phuc et al.}` is present;
-- the affiliation is `FPT University, Ho Chi Minh City, Vietnam`;
+- the affiliation is `FPT University, Ho Chi Minh City, 700000, Vietnam`;
 - the reproducibility link points to the public GitHub repository;
 - the three main results tables use `\small` with readable column spacing.
 

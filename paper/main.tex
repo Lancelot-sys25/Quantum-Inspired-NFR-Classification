@@ -27,7 +27,7 @@ Le Doan Gia Hung\inst{1} \and
 Lai Duc Hung\inst{1}}
 \authorrunning{N. H. Phuc et al.}
 
-\institute{FPT University, Ho Chi Minh City, Vietnam \\
+\institute{FPT University, Ho Chi Minh City, 700000, Vietnam \\
 \email{nphuc4748@gmail.com, nguyengiang14012005@gmail.com,\\
 lhung291005@gmail.com, hungld@fpt.edu.vn}}
 
@@ -495,6 +495,7 @@ validation-selected global threshold per fold. ``Pos.'', ``Cont.'', and
 quantum--SVM.}
 \label{tab:nice-cv}
 \setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
@@ -508,6 +509,7 @@ Pos. projection & 0.5931 $\pm$ 0.0166 & 0.5490 $\pm$ 0.0237 & 0.1096 $\pm$ 0.021
 Label-frequency & 0.2328 $\pm$ 0.0034 & 0.2083 $\pm$ 0.0032 & 0.7927 $\pm$ 0.0019 & 0.4059 $\pm$ 0.0110 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 Under standard 5-fold cross-validation with a global threshold, Sentence-BERT
@@ -531,6 +533,7 @@ threshold calibration. This is the only protocol run for fine-tuned
 DistilBERT; ``Q--SVM'' abbreviates hybrid quantum--SVM.}
 \label{tab:nice-per-label}
 \setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Model & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
@@ -542,6 +545,7 @@ TF-IDF LR & 0.6219 $\pm$ 0.0588 & 0.5629 $\pm$ 0.0532 & 0.0967 $\pm$ 0.0195 & 0.
 Fine-tuned DistilBERT & 0.5420 $\pm$ 0.0569 & 0.5333 $\pm$ 0.0591 & 0.1402 $\pm$ 0.0361 & 0.7105 $\pm$ 0.0516 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 With per-label threshold calibration, Sentence-BERT again obtains the best
@@ -569,6 +573,7 @@ quantum weight in this range; $\alpha=0.30$ is reported as the main
 configuration.}
 \label{tab:nice-ablation}
 \setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Variant & Micro-F1 & Macro-F1 & Hamming Loss & LRAP \\
@@ -583,6 +588,7 @@ Cont. proj. w/o interf. & 0.5447 $\pm$ 0.0420 & 0.5397 $\pm$ 0.0398 & 0.1339 $\p
 Cont. proj. w/ interf. & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm$ 0.1634 & 0.6968 $\pm$ 0.0503 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 Interference is neutral for positive projection (Macro-F1 0.5526 without vs.\
