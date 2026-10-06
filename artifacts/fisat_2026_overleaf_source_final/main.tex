@@ -89,13 +89,15 @@ quantum language modeling \cite{vanrijsbergen2004geometry,sordoni2013quantum,li2
 
 The paper's positive claim is that this formulation provides an intrinsic
 explanation mechanism for multi-label NFR classification and a testable
-theory of when quantum-inspired geometry changes the decision rule. The basic
-projection component is closely related to centroid-based text classification;
-the interference and positive-model row-wise normalization analyses make
-explicit when the model becomes more than an independent centroid classifier
-and when it does not. Empirically, the hybrid model offers a small, suggestive
-accuracy gain over comparable TF-IDF baselines, while the primary value of the
-method lies in its transparent scoring structure and diagnostic ablation.
+account of when its decision rule couples labels. The method uses classical
+vector operations on ordinary computers: its basic projection is closely
+related to cosine-style centroid ranking, not a quantum-computing advantage.
+Its contribution is the explicit scoring and token-attribution formulation,
+together with a characterization of where interference or row-wise
+normalization changes the independent-centroid decision rule. Empirically,
+the hybrid model offers only a small, statistically unconfirmed gain over
+comparable TF-IDF baselines; the evidence for this method chiefly concerns
+transparent scoring and the diagnostic value of its ablations.
 
 The contributions of this paper are:
 \begin{itemize}
@@ -147,34 +149,33 @@ the point at which the quantum-inspired and classical branches are fused.
 \begin{figure}[tbp]
 \centering
 \begin{tikzpicture}[
-  box/.style={draw, rectangle, rounded corners, minimum height=2.7em,
+  box/.style={draw, rounded corners, minimum height=2.8em,
     text width=2.35cm, align=center, fill=blue!5, font=\small},
-  arrow/.style={thick,->,>=stealth}
+  arrow/.style={thick, ->, >=stealth}
 ]
-\node[box] (req) {Requirement Text};
-\node[box, right=0.35cm of req] (tfidf) {TF-IDF Vector $\mathbf{x}_i$};
-\node[box, right=0.35cm of tfidf] (state) {Semantic State $\lvert r_i \rangle$};
-\node[box, right=0.35cm of state] (proj) {Label Projection\\$s_c(r_i)$ or\\$s^{\Delta}_c(r_i)$};
-\node[box, below=0.4cm of proj] (interf) {Interference\\Adjusted Score $\mathbf{q}_i$};
-\node[box, left=0.35cm of interf] (hybrid) {Hybrid Fusion\\$\alpha\mathbf{q}_i+(1-\alpha)\mathbf{v}_i$};
-\node[box, left=0.35cm of hybrid] (pred) {Multi-label Prediction};
-\node[box, below=0.4cm of hybrid] (svm) {Linear SVM\\Score $\mathbf{v}_i$};
+\node[box] (tfidf) {TF-IDF vector\\$\mathbf{x}_i$};
+\node[box, left=0.35cm of tfidf] (req) {Requirement text};
+\node[box, right=0.35cm of tfidf] (state) {Normalized state\\$\lvert r_i\rangle$};
+\node[box, right=0.35cm of state] (proj) {Label projections\\$\mathbf{p}_i$};
+\node[box, below=0.55cm of proj] (interf) {Calibration and\\interference $\mathbf{q}_i$};
+\node[box, left=0.35cm of interf] (hybrid) {Hybrid fusion\\$\alpha\mathbf{q}_i+(1-\alpha)\mathbf{v}_i$};
+\node[box, left=0.35cm of hybrid] (svm) {Linear SVM\\scores $\mathbf{v}_i$};
+\node[box, below=0.55cm of hybrid] (pred) {Per-label thresholds\\multi-label output};
 
 \draw[arrow] (req) -- (tfidf);
 \draw[arrow] (tfidf) -- (state);
-\coordinate (svmroute) at ([xshift=-0.25cm]pred.west);
-\draw[arrow] (tfidf.south) -- ++(0,-0.2) -| (svmroute) |- (svm.west);
 \draw[arrow] (state) -- (proj);
 \draw[arrow] (proj) -- (interf);
-\draw[arrow] (interf) -- (hybrid);
+\draw[arrow] (tfidf) -- (svm);
 \draw[arrow] (svm) -- (hybrid);
+\draw[arrow] (interf) -- (hybrid);
 \draw[arrow] (hybrid) -- (pred);
 \end{tikzpicture}
-\caption{Hybrid quantum-inspired multi-label classification pipeline. A
-requirement is transformed into a TF-IDF vector and normalized semantic state,
-then projected onto NFR-label directions. Co-occurrence interference adjusts
-the projection scores; the resulting quantum-inspired scores are fused with
-Linear SVM scores and thresholded to produce the multi-label prediction.}
+\caption{Prediction pipeline for the hybrid model. TF-IDF feeds the
+quantum-inspired projection branch and the classical SVM branch. Projection
+scores are calibrated and adjusted using label co-occurrence; fusion scores
+are then thresholded separately for each NFR label. The projection branch can
+also be evaluated without SVM fusion.}
 \label{fig:architecture}
 \end{figure}
 
@@ -242,16 +243,24 @@ identity matrix:
 \begin{equation}
     \mathbf{M}' = (1-\lambda)\mathbf{I} + \lambda\mathbf{M},
 \end{equation}
-where $\lambda$ controls interference strength. For projection scores
-$\mathbf{p}_i$, adjusted scores are computed as:
+where $\lambda$ controls interference strength. The two variants apply
+calibration at different points. For the positive-projection score vector
+$\mathbf{p}_i^{+}=(s_c(r_i))_c$, the final scores are
 \begin{equation}
-    \mathbf{s}_i = \mathrm{normalize}(\mathbf{p}_i \mathbf{M}').
+    \mathbf{s}_i^{+}=\operatorname{minmax}_{\rm row}
+    (\mathbf{p}_i^{+}\mathbf{M}').
 \end{equation}
-For the positive-projection model, $\mathrm{normalize}(\cdot)$ denotes row-wise
-min--max normalization into $[0,1]$. For the contrastive model, the rectified
-projection is passed through a sigmoid calibration and the interference-adjusted
-scores are clipped into $[0,1]$. The resulting scores are association scores
-for thresholding rather than mutually exclusive probabilities.
+For the rectified contrastive-projection score vector
+$\mathbf{p}_i^{\Delta}=(s_c^{\Delta}(r_i))_c$, sigmoid calibration precedes
+interference:
+\begin{equation}
+    \mathbf{s}_i^{\Delta}=\operatorname{clip}_{[0,1]}
+    \!\left(\sigma(\kappa\mathbf{p}_i^{\Delta}+\mathbf{b})\mathbf{M}'\right),
+\end{equation}
+where $\sigma$ is the logistic sigmoid, $\kappa$ is the score scale, and
+$\mathbf{b}$ is the vector of label biases. These scores are used for
+thresholding and are not mutually exclusive
+probabilities.
 
 \subsection{Hybrid Quantum--SVM Fusion}
 To improve stability on small and imbalanced datasets, a hybrid model combines
@@ -259,7 +268,8 @@ the contrastive quantum-inspired score with a one-vs-rest Linear SVM score:
 \begin{equation}
     \mathbf{h}_i = \alpha \mathbf{q}_i + (1-\alpha)\mathbf{v}_i,
 \end{equation}
-where $\mathbf{q}_i$ is the contrastive quantum-inspired score vector,
+where $\mathbf{q}_i=\mathbf{s}_i^{\Delta}$ is the contrastive
+quantum-inspired score vector,
 $\mathbf{v}_i$ is the calibrated SVM score vector, and $\alpha$ is the quantum
 fusion weight. In the final experiments, $\alpha=0.30$ is used as a moderate
 quantum weight; the ablation study (Table~\ref{tab:nice-ablation}) shows that
@@ -382,6 +392,33 @@ and binary label columns for NFR classes. After filtering rows with at least one
 NFR sub-class label and removing the empty ``Other'' label, the experiment uses
 381 requirements and 11 NFR labels. Among these, 125 requirements contain more
 than one NFR label, giving a label cardinality of 1.3648.
+
+\begin{table}[tbp]
+\centering
+\small
+\caption{Distribution of the 11 NFR labels in the 381 usable NICE
+requirements. Counts are positive label assignments; a requirement may
+contribute to more than one label.}
+\label{tab:nice-label-distribution}
+\begin{tabular}{@{}lr@{\hspace{1.2em}}lr@{}}
+\toprule
+Label & Count & Label & Count \\
+\midrule
+Availability & 38 & Performance & 63 \\
+Fault tolerance & 16 & Portability & 22 \\
+Legal & 31 & Scalability & 29 \\
+Look and feel & 69 & Security & 75 \\
+Maintainability & 34 & Usability & 85 \\
+Operability & 58 & & \\
+\midrule
+\multicolumn{3}{r}{Total label assignments} & 520 \\
+\bottomrule
+\end{tabular}
+\end{table}
+As Table~\ref{tab:nice-label-distribution} shows, label support ranges from
+16 (fault tolerance) to 85 (usability). These unequal and sometimes small
+counts limit per-label evaluation and make estimated label co-occurrences
+potentially sensitive to individual examples.
 
 \textbf{PROMISE-expanded dataset.} A secondary experiment uses
 PROMISE-expanded from the public requirements classification repository
@@ -594,6 +631,13 @@ Cont. proj. w/ interf. & 0.4300 $\pm$ 0.0783 & 0.4118 $\pm$ 0.0275 & 0.2074 $\pm
 Interference is neutral for positive projection (Macro-F1 0.5526 without vs.\
 0.5490 with it) and harmful for contrastive projection (0.5397 vs.\ 0.4118),
 so it is a diagnostic mechanism rather than an accuracy contribution here.
+The coupling result establishes that co-occurrence adjustment can change
+scores; it does not imply that the learned adjustment improves predictions.
+One possible explanation for the contrastive loss is that co-occurrence
+estimates from only 381 examples, including labels with as few as 16 positive
+instances (Table~\ref{tab:nice-label-distribution}), transfer noisy evidence
+between labels. This mechanism has not been isolated experimentally, so we
+do not attribute the observed loss to sparsity alone.
 The rectified contrastive formulation remains semantically safer than
 squaring negative evidence but is weaker than positive projection. Hybrid
 $\alpha=0.30$ raises the SVM-only Macro-F1 from 0.5945 to 0.6084; thus the
@@ -657,6 +701,16 @@ token-level contributions without post-hoc LIME \cite{ribeiro2016lime} or SHAP
 \cite{lundberg2017shap}. It is appropriate when intrinsic interpretability and
 a small dependency footprint matter more than maximum Macro-F1, not as a
 confirmed accuracy improvement.
+
+The term ``quantum-inspired'' describes the state, projection, and interference
+formulation, not a quantum-hardware implementation. The projection-only models
+do not outperform the classical Linear SVM here, and their basic ranking can
+reduce to cosine-style centroid ranking. The practical distinction supported
+by these experiments is an explicit, inspectable route from token contributions
+to per-label scores, together with a characterization of when label coupling
+changes that route. The deletion comparison tests whether those attributions
+reflect each model's scoring behavior; it does not establish that they are
+more useful than classical explanations in an engineering workflow.
 
 \section{Threats to Validity}
 \paragraph{Dataset size and availability.} NICE contains 381 usable multi-label
